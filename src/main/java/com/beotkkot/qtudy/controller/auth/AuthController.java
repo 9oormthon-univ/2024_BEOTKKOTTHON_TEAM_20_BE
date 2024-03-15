@@ -1,8 +1,8 @@
 package com.beotkkot.qtudy.controller.auth;
 
 import com.beotkkot.qtudy.domain.user.Users;
-import com.beotkkot.qtudy.dto.KakaoUserInfo;
-import com.beotkkot.qtudy.dto.UserResponse;
+import com.beotkkot.qtudy.dto.auth.KakaoUserInfo;
+import com.beotkkot.qtudy.dto.auth.UserResponse;
 import com.beotkkot.qtudy.service.auth.AuthService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
