@@ -1,19 +1,12 @@
-server:
-  address: localhost
-  port: 8080
-
 # database 연동 설정
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB.url}
-    username: ${DB.username}
-    password: ${DB.password}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   thymeleaf:
     cache: false
-  profiles:
-    include:
-      - secrets
 
   # spring data jpa 설정
   jpa:
