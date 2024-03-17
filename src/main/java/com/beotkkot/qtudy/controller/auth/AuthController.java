@@ -4,7 +4,6 @@ import com.beotkkot.qtudy.domain.user.Users;
 import com.beotkkot.qtudy.dto.auth.KakaoUserInfo;
 import com.beotkkot.qtudy.dto.auth.UserResponse;
 import com.beotkkot.qtudy.service.auth.AuthService;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class AuthController {
 
     // 프론트로부터 인가 code를 받아와 카카오 서버로부터 토큰 얻기
     @GetMapping("")
-    public ResponseEntity<Object> kakaoLogin(@RequestParam("code") String code, HttpSession session) {
+    public ResponseEntity<Object> kakaoLogin(@RequestParam("code") String code) {
 
         System.out.println("code = " + code);
 
@@ -34,11 +33,6 @@ public class AuthController {
 
         // 3. 로그인
         Users user = authService.login(kakaoUserInfo);
-
-        if (user.getKakaoId() != null) {
-            session.setAttribute("kakaoId", user.getKakaoId());
-            session.setAttribute("accessToken", accessToken);
-        }
 
         // 4. 유저 정보 리턴
         UserResponse userResponse = new UserResponse(
@@ -54,14 +48,16 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String,String>> logout(HttpSession session) {
+    public ResponseEntity<Map<String,String>> logout(@RequestHeader("Authorization") String header) {
 
-        String accessToken = (String)session.getAttribute("accessToken");
-        if (accessToken != null && !"".equals(accessToken)) {
-            authService.logout(accessToken);
-            session.removeAttribute("kakaoId");
-            session.removeAttribute("accessToken");
-        }
+        System.out.println("header = " + header);
+
+        String[] authHeader = header.split(" ");
+        // 헤더에서 토큰 추출
+        String accessToken = authHeader[1];
+
+        // 토큰을 사용해 로그아웃 처리
+        authService.logout(accessToken);
 
         // 로그아웃 성공 메시지 반환
         Map<String, String> response = new HashMap<>();

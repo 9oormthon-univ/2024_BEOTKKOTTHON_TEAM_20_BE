@@ -7,14 +7,11 @@ import com.beotkkot.qtudy.domain.user.Users;
 import com.beotkkot.qtudy.dto.object.PostListItem;
 import com.beotkkot.qtudy.dto.request.posts.PostsRequestDto;
 import com.beotkkot.qtudy.dto.response.*;
+import com.beotkkot.qtudy.dto.response.posts.*;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
 import com.beotkkot.qtudy.repository.scrap.ScrapRepository;
 import com.beotkkot.qtudy.repository.tags.TagsRepository;
 import com.beotkkot.qtudy.repository.user.UserRepository;
-import com.beotkkot.qtudy.dto.response.posts.GetPostsAllResponseDto;
-import com.beotkkot.qtudy.dto.response.posts.GetPostsResponseDto;
-import com.beotkkot.qtudy.dto.response.posts.PostsResponseDto;
-import com.beotkkot.qtudy.dto.response.posts.PutScrapResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +31,7 @@ public class PostsService {
     private final UserRepository userRepo;
     private final TagsRepository tagRepo;
     private final ScrapRepository scrapRepo;
+    private final SummaryService summaryService;
 //    private final CommentsRepository commentsRepo; (댓글 기능 구현 시 주석 제거)
 
     @Transactional
@@ -41,6 +39,7 @@ public class PostsService {
         try {
 
             if (userRepo.findByKakaoId(kakao_uid) != null) {
+
                 // 포스트 엔티티 생성
                 Posts post = dto.toEntity(kakao_uid);
 
@@ -71,8 +70,16 @@ public class PostsService {
                 String tagString = String.join(",", savedTags);
                 post.setTag(tagString);
 
+                /**
+                 * postRepo에 해당 유저가 작성한 글에 대한 요약본 저장하는 부분 추가
+                 */
+                String summary = summaryService.summary(dto.getContent());
+                post.setContent(dto.getContent());
+                post.setAiScript(summary);
+
                 // 포스트 저장
                 postsRepo.save(post);
+
             } else {
                 return PostsResponseDto.notExistUser();
             }
@@ -100,6 +107,25 @@ public class PostsService {
         }
 
         return GetPostsResponseDto.success(post, user);
+    }
+
+    @Transactional
+    public ResponseEntity<? super GetSummaryResponseDto> getSummary(Long postId) {
+        Posts post;
+        String summary;
+        try {
+            if (postsRepo.existsById(postId)) {
+                post = postsRepo.findByPostId(postId);
+                summary = post.getAiScript();
+            } else {
+                return GetSummaryResponseDto.noExistPost();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return GetSummaryResponseDto.success(postId, summary);
     }
 
     @Transactional
