@@ -16,6 +16,7 @@ public class PostsRequestDto {
     private String content;
     private List<String> tag;
     private Long categoryId;
+    private String summary;
 
     public Posts toEntity(Long uid) {
         Date now = Date.from(Instant.now());
@@ -27,6 +28,7 @@ public class PostsRequestDto {
                 .userUid(uid)
                 .title(title)
                 .content(content)
+                .aiScript(summary)
                 .tag(tagString)
                 .createdAt(writeDatetime)
                 .commentCount(0)
@@ -34,4 +36,5 @@ public class PostsRequestDto {
                 .categoryId(categoryId)
                 .build();
     }
+
 }
