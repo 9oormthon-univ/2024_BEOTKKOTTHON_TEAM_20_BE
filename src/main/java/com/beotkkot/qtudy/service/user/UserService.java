@@ -1,7 +1,7 @@
 package com.beotkkot.qtudy.service.user;
 
 import com.beotkkot.qtudy.domain.user.Users;
-import com.beotkkot.qtudy.dto.auth.KakaoUserInfo;
+import com.beotkkot.qtudy.dto.object.KakaoUserInfo;
 import com.beotkkot.qtudy.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
