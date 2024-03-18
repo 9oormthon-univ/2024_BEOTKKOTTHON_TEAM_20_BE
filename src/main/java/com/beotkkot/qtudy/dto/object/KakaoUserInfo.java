@@ -1,4 +1,4 @@
-package com.beotkkot.qtudy.dto.auth;
+package com.beotkkot.qtudy.dto.object;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
