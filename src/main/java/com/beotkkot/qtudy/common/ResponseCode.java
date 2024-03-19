@@ -8,6 +8,7 @@ public interface ResponseCode {
     String VALIDATION_FAILED = "VF";
     String NOT_EXISTED_USER = "NEU";
     String NOT_EXISTED_POST = "NEP";
+    String NOT_EXISTED_COMMENT = "NEC";
 
     // HTTP Status 401
     String SIGN_IN_FAIL = "SF";
