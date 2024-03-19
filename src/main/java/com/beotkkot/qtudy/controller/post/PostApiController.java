@@ -22,72 +22,120 @@ public class PostApiController {
     private final PostsService postsService;
     private final AuthService authService;
 
-    @GetMapping("/posts")
-    public ResponseEntity<? super GetPostsAllResponseDto> getAllPost() {
-        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getAllPost();
+    @GetMapping("/posts/all")
+    public ResponseEntity<? super GetPostsAllResponseDto> getAllPost(@RequestParam("page")int page) {
+        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getAllPost(page);
         return response;
     }
 
     @PostMapping("/posts")
     public ResponseEntity<? super PostsResponseDto> save(@RequestHeader(value="Authorization") String token, @RequestBody PostsRequestDto requestDto) {
-        Long kakao_uid = authService.getKakaoUserInfo(token).getId();
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
 
         ResponseEntity<? super PostsResponseDto> response = postsService.savePost(kakao_uid, requestDto);
         return response;
     }
 
-    @GetMapping("/posts/{postId}")
-    public ResponseEntity<? super GetPostsResponseDto> getPost(@PathVariable Long postId) {
+    @GetMapping("/posts")
+    public ResponseEntity<? super GetPostsResponseDto> getPost(@RequestParam("postId") Long postId) {
         ResponseEntity<? super GetPostsResponseDto> response = postsService.getPost(postId);
         return response;
     }
 
-    @PatchMapping("/posts/{postId}")
-    public ResponseEntity<? super PostsResponseDto> patchPost(@PathVariable Long postId, @RequestHeader(value="Authorization") String token, @RequestBody PostsRequestDto requestDto) {
-        Long kakao_uid = authService.getKakaoUserInfo(token).getId();
+    @PatchMapping("/posts")
+    public ResponseEntity<? super PostsResponseDto> patchPost(@RequestParam("postId") Long postId, @RequestHeader(value="Authorization") String token, @RequestBody PostsRequestDto requestDto) {
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
 
         ResponseEntity<? super PostsResponseDto> response = postsService.patchPost(postId, kakao_uid, requestDto);
         return response;
     }
 
-    @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<? super PostsResponseDto> deletePost(@PathVariable Long postId, @RequestHeader(value="Authorization") String token) {
-        Long kakao_uid = authService.getKakaoUserInfo(token).getId();
+    @DeleteMapping("/posts")
+    public ResponseEntity<? super PostsResponseDto> deletePost(@RequestParam("postId") Long postId, @RequestHeader(value="Authorization") String token) {
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
         ResponseEntity<? super PostsResponseDto> response = postsService.deletePost(postId, kakao_uid);
         return response;
     }
 
     @GetMapping("/posts/my-post-list")
-    public ResponseEntity<? super GetPostsAllResponseDto> getMyPost(@RequestHeader(value="Authorization") String token) {
-        Long kakao_uid = authService.getKakaoUserInfo(token).getId();
-        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getMyPost(kakao_uid);
+    public ResponseEntity<? super GetPostsAllResponseDto> getMyPost(@RequestHeader(value="Authorization") String token, @RequestParam("page")int page) {
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
+        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getMyPost(kakao_uid, page);
         return response;
     }
 
-    @GetMapping("/posts/search-list/{searchWord}")
-    public ResponseEntity<? super GetPostsAllResponseDto> getSearchPost(@PathVariable String searchWord) {
-        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getSearchPost(searchWord);
+    @GetMapping("/posts/search-list")
+    public ResponseEntity<? super GetPostsAllResponseDto> getSearchPost(@RequestParam("searchWord") String searchWord, @RequestParam("page")int page) {
+        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getSearchPost(searchWord, page);
         return response;
     }
 
     @GetMapping("/posts/category-list")
-    public ResponseEntity<? super GetPostsAllResponseDto> searchPostsByCategory(@RequestParam("category") List<Long> categories) {
-        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getCategorySearchPost(categories);
+    public ResponseEntity<? super GetPostsAllResponseDto> searchPostsByCategory(@RequestParam("categoryId") List<Long> categories, @RequestParam("page")int page) {
+        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getCategorySearchPost(categories, page);
         return response;
     }
 
     // 스크랩
-    @PutMapping("/posts/{postId}/scrap")
-    public ResponseEntity<? super PutScrapResponseDto> putScrap(@PathVariable("postId") Long postId, @RequestHeader(value="Authorization") String token) {
-        Long kakao_uid = authService.getKakaoUserInfo(token).getId();
+    @PutMapping("/posts/scrap")
+    public ResponseEntity<? super PutScrapResponseDto> putScrap(@RequestParam("postId") Long postId, @RequestHeader(value="Authorization") String token) {
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
         ResponseEntity<? super PutScrapResponseDto> response = postsService.putScrap(postId, kakao_uid);
         return response;
     }
 
     @GetMapping("/posts/scrap-list")
-    public ResponseEntity<? super GetPostsAllResponseDto> getAllScrapPost(@RequestHeader(value="Authorization") String token) {
-        Long kakao_uid = authService.getKakaoUserInfo(token).getId();
-        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getAllScrapPost(kakao_uid);
+    public ResponseEntity<? super GetPostsAllResponseDto> getAllScrapPost(@RequestHeader(value="Authorization") String token, @RequestParam("page")int page) {
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
+        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getAllScrapPost(kakao_uid, page);
         return response;
     }
 }

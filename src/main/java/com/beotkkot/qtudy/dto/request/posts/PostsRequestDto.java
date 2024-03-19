@@ -25,10 +25,10 @@ public class PostsRequestDto {
         String tagString = String.join(",", tag);
 
         return Posts.builder()
-                .userUid(uid)
+                .kakaoId(uid)
                 .title(title)
                 .content(content)
-                .aiScript(summary)
+                .summary(summary)
                 .tag(tagString)
                 .createdAt(writeDatetime)
                 .commentCount(0)

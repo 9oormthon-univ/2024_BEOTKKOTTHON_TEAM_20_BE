@@ -20,7 +20,7 @@ public class Posts {
     private Long postId;
 
     @Column(nullable = false)
-    private Long userUid;
+    private Long kakaoId;
 
     @Column(nullable = false)
     private String title;
@@ -34,7 +34,7 @@ public class Posts {
 
     // AI 요약본
     @Column(columnDefinition = "TEXT")
-    private String aiScript;
+    private String summary;
 
     private int commentCount;
 
