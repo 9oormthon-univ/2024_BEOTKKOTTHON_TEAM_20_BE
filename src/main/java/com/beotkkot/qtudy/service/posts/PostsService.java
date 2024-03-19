@@ -8,6 +8,7 @@ import com.beotkkot.qtudy.dto.object.PostListItem;
 import com.beotkkot.qtudy.dto.request.posts.PostsRequestDto;
 import com.beotkkot.qtudy.dto.response.*;
 import com.beotkkot.qtudy.dto.response.posts.*;
+import com.beotkkot.qtudy.repository.comments.CommentsRepository;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
 import com.beotkkot.qtudy.repository.scrap.ScrapRepository;
 import com.beotkkot.qtudy.repository.tags.TagsRepository;
@@ -211,7 +212,7 @@ public class PostsService {
             if (!isWriter) return PostsResponseDto.noPermission();
 
             scrapRepo.deleteByPostId(postId);
-            commentRepo.deleteByPostId(postId);
+            commentsRepo.deleteByPostId(postId);
 
             // 관련된 hash tag -1
             List<String> tagNameList = Arrays.asList(post.getTag().split("\\s*,\\s*"));
