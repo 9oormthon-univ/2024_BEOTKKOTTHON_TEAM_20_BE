@@ -1,14 +1,11 @@
 package com.beotkkot.qtudy.domain.comments;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
+@Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -17,5 +14,14 @@ public class Comments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
+    @Column(nullable = false)
+    private Long postId;
+
+    @Column(nullable = false)
+    private Long userUid;
+
+    @Column(columnDefinition = "TEXT")
     private String content;
+
+    private String createdAt;
 }
