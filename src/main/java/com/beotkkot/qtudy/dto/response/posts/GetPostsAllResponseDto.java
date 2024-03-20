@@ -14,16 +14,18 @@ import java.util.List;
 @Getter
 public class GetPostsAllResponseDto extends ResponseDto {
     private int page;
+    private int totalPages;
     private List<PostListItem> postList;
 
-    public GetPostsAllResponseDto(List<PostListItem> PostListItem, int page) {
+    public GetPostsAllResponseDto(List<PostListItem> PostListItem, int page, int totalPages) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         this.page = page;
+        this.totalPages = totalPages;
         this.postList = PostListItem;
     }
 
-    public static ResponseEntity<GetPostsAllResponseDto> success(List<PostListItem> PostListItem, int page) {
-        GetPostsAllResponseDto result = new GetPostsAllResponseDto(PostListItem, page);
+    public static ResponseEntity<GetPostsAllResponseDto> success(List<PostListItem> PostListItem, int page, int totalPages) {
+        GetPostsAllResponseDto result = new GetPostsAllResponseDto(PostListItem, page, totalPages);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

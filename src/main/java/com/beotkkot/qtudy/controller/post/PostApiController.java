@@ -34,7 +34,8 @@ public class PostApiController {
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
             if (kakao_uid == null)
-                return PostsResponseDto.noAuthentication();
+                return PostsResponseDto.databaseError();
+                // return PostsResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return PostsResponseDto.databaseError();
@@ -56,7 +57,8 @@ public class PostApiController {
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
             if (kakao_uid == null)
-                return PostsResponseDto.noAuthentication();
+                return PostsResponseDto.databaseError();
+                // return PostsResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return PostsResponseDto.databaseError();
@@ -72,7 +74,8 @@ public class PostApiController {
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
             if (kakao_uid == null)
-                return PostsResponseDto.noAuthentication();
+                return PostsResponseDto.databaseError();
+                // return PostsResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return PostsResponseDto.databaseError();
@@ -87,7 +90,8 @@ public class PostApiController {
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
             if (kakao_uid == null)
-                return PostsResponseDto.noAuthentication();
+                return PostsResponseDto.databaseError();
+                // return PostsResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return PostsResponseDto.databaseError();
@@ -115,7 +119,8 @@ public class PostApiController {
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
             if (kakao_uid == null)
-                return PostsResponseDto.noAuthentication();
+                return PostsResponseDto.databaseError();
+                // return PostsResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return PostsResponseDto.databaseError();
@@ -130,7 +135,8 @@ public class PostApiController {
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
             if (kakao_uid == null)
-                return PostsResponseDto.noAuthentication();
+                return PostsResponseDto.databaseError();
+                // return PostsResponseDto.noAuthentication();
         } catch (Exception exception) {
             log.info(exception.getMessage());
             return PostsResponseDto.databaseError();
