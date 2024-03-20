@@ -16,11 +16,12 @@ import java.util.List;
 public class PostListItem {
     private Long postId;
     private String title;
-    private String content;
+    private String summary;
     private int scrapCount;
     private int commentCount;
     private Long categoryId;
     private List<String> tag;
+    private String createdAt;
 
     public static PostListItem of(Posts post) {
         List<String> tag = Arrays.asList(post.getTag().split("\\s*,\\s*"));
@@ -28,11 +29,12 @@ public class PostListItem {
         return PostListItem.builder()
                 .postId(post.getPostId())
                 .title(post.getTitle())
-                .content(post.getContent())
+                .summary(post.getSummary())
                 .scrapCount(post.getScrapCount())
                 .commentCount(post.getCommentCount())
                 .tag(tag)
                 .categoryId(post.getCategoryId())
+                .createdAt(post.getCreatedAt())
                 .build();
     }
 }

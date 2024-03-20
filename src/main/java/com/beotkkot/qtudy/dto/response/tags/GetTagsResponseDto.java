@@ -11,16 +11,16 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @Getter
-public class GetTop3TagsDto extends ResponseDto {
-    private List<TagListItem> top3List;
+public class GetTagsResponseDto extends ResponseDto {
+    private List<TagListItem> tagList;
 
-    public GetTop3TagsDto(List<TagListItem> TagListItem) {
+    public GetTagsResponseDto(List<TagListItem> TagListItem) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
-        this.top3List = TagListItem;
+        this.tagList = TagListItem;
     }
 
-    public static ResponseEntity<GetTop3TagsDto> success(List<TagListItem> top3List) {
-        GetTop3TagsDto result = new GetTop3TagsDto(top3List);
+    public static ResponseEntity<GetTagsResponseDto> success(List<TagListItem> tagList) {
+        GetTagsResponseDto result = new GetTagsResponseDto(tagList);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
