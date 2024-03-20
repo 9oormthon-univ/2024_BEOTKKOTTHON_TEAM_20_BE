@@ -30,22 +30,24 @@ public class QuizController {
     }
 
     // 태그별 퀴즈 출력
-    @GetMapping("/quiz/tag-quiz/{tagName}")
-    public ResponseEntity<? super GetPostQuizResponseDto> getTagQuiz(@PathVariable String tagName) {
+    @GetMapping("/quiz/tag-quiz")
+    public ResponseEntity<? super GetPostQuizResponseDto> getTagQuiz(@RequestParam String tagName) {
         ResponseEntity<? super GetPostQuizResponseDto> response = quizService.getTagQuiz(tagName);
         return response;
     }
 
     // 게시글 별 퀴즈 출력
-    @GetMapping("/quiz/post-quiz/{postId}")
-    public ResponseEntity<? super GetPostQuizResponseDto> getPostQuiz(@PathVariable Long postId) {
+    @GetMapping("/quiz/post-quiz")
+    public ResponseEntity<? super GetPostQuizResponseDto> getPostQuiz(@RequestParam Long postId) {
         ResponseEntity<? super GetPostQuizResponseDto> response = quizService.getPostQuiz(postId);
         return response;
     }
 
+
     // 정답 채점
     @PostMapping("/quiz/grade")
-    public ResponseEntity<? super QuizGradeResponseDto> gradeQuiz(@RequestBody GradeQuizRequestDto dto) {
+    public ResponseEntity<? super QuizGradeResponseDto> gradeQuiz(@RequestHeader(value="Authorization") String token, @RequestBody GradeQuizRequestDto dto) {
+        // uuid 받아서 사용자 조회 필요 -> 오답노트 엔티티에 저장해야함
         ResponseEntity<? super QuizGradeResponseDto> response = quizService.gradeQuiz(dto);
         return response;
     }

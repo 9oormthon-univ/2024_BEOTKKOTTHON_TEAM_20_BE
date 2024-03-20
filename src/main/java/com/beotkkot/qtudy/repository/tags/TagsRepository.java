@@ -1,6 +1,7 @@
 package com.beotkkot.qtudy.repository.tags;
 
 
+import com.beotkkot.qtudy.domain.category.Category;
 import com.beotkkot.qtudy.domain.tags.Tags;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,6 @@ public interface TagsRepository extends JpaRepository<Tags, Long> {
 
     @Query("SELECT t FROM Tags t ORDER BY t.count DESC LIMIT 3")
     List<Tags> findTop3ByOrderByCountDesc();
+
+    List<Tags> findByCategoryId(Long categoryId);
 }

@@ -8,20 +8,21 @@ import com.beotkkot.qtudy.dto.object.PostListItem;
 import com.beotkkot.qtudy.dto.request.posts.PostsRequestDto;
 import com.beotkkot.qtudy.dto.response.*;
 import com.beotkkot.qtudy.dto.response.posts.*;
+import com.beotkkot.qtudy.repository.comments.CommentsRepository;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
 import com.beotkkot.qtudy.repository.scrap.ScrapRepository;
 import com.beotkkot.qtudy.repository.tags.TagsRepository;
 import com.beotkkot.qtudy.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class PostsService {
     private final TagsRepository tagRepo;
     private final ScrapRepository scrapRepo;
     private final SummaryService summaryService;
-//    private final CommentsRepository commentsRepo; (댓글 기능 구현 시 주석 제거)
+    private final CommentsRepository commentsRepo;
 
     @Transactional
     public ResponseEntity<? super PostsResponseDto> savePost(Long kakao_uid, PostsRequestDto dto) {
@@ -59,6 +60,7 @@ public class PostsService {
                         Tags newTag = new Tags();
                         newTag.setName(tagName);
                         newTag.setCount(1); // 새로운 태그의 count를 1로 초기화
+                        newTag.setCategoryId(dto.getCategoryId());
                         savedTags.add(tagName);
 
                         // 새로운 태그를 저장
@@ -75,7 +77,7 @@ public class PostsService {
                  */
                 String summary = summaryService.summary(dto.getContent());
                 post.setContent(dto.getContent());
-                post.setAiScript(summary);
+                post.setSummary(summary);
 
                 // 포스트 저장
                 postsRepo.save(post);
@@ -97,7 +99,7 @@ public class PostsService {
         try {
             if (postsRepo.existsById(postId)) {
                 post = postsRepo.findById(postId).get();
-                user = userRepo.findByKakaoId(post.getUserUid());
+                user = userRepo.findByKakaoId(post.getKakaoId());
             } else {
                 return GetPostsResponseDto.noExistPost();
             }
@@ -116,7 +118,7 @@ public class PostsService {
         try {
             if (postsRepo.existsById(postId)) {
                 post = postsRepo.findByPostId(postId);
-                summary = post.getAiScript();
+                summary = post.getSummary();
             } else {
                 return GetSummaryResponseDto.noExistPost();
             }
@@ -129,19 +131,22 @@ public class PostsService {
     }
 
     @Transactional
-    public ResponseEntity<? super GetPostsAllResponseDto> getAllPost() {
+    public ResponseEntity<? super GetPostsAllResponseDto> getAllPost(int page) {
         List<PostListItem> postListItems = new ArrayList<>();
+        PageRequest pageRequest = PageRequest.of(page, 12, Sort.by("createdAt").descending());
+        int totalPages;
         try {
-            List<Posts> posts = postsRepo.findAll();
-            for (Posts post : posts)
+            Page<Posts> posts = postsRepo.findAll(pageRequest);
+            totalPages = posts.getTotalPages();
+            for (Posts post : posts.getContent())
                 postListItems.add(PostListItem.of(post));
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems);
-        return responseDto.success(postListItems);
+        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, page, totalPages);
+        return responseDto.success(postListItems, page, totalPages);
     }
 
     @Transactional
@@ -153,7 +158,7 @@ public class PostsService {
             Posts post = postOptional.get();
             if (userRepo.findByKakaoId(kakao_uid) == null) return PostsResponseDto.notExistUser();
 
-            Long writerId = post.getUserUid();
+            Long writerId = post.getKakaoId();
             if (!writerId.equals(kakao_uid)) return PostsResponseDto.noPermission();
 
             // 업데이트되기 이전의 태그 목록
@@ -206,13 +211,12 @@ public class PostsService {
             if (!postsRepo.existsById(postId)) return PostsResponseDto.notExistedPost();
             if (userRepo.findByKakaoId(kakao_uid) == null) return PostsResponseDto.notExistUser();
 
-            Long writerId = post.getUserUid();
+            Long writerId = post.getKakaoId();
             boolean isWriter = writerId.equals(kakao_uid);
             if (!isWriter) return PostsResponseDto.noPermission();
 
-            // ********* comment, scrap 함께 삭제 (댓글 기능 구현 시 수정 바람)
             scrapRepo.deleteByPostId(postId);
-            // commentRepo.deleteByPostId(postId);
+            commentsRepo.deleteByPostId(postId);
 
             // 관련된 hash tag -1
             List<String> tagNameList = Arrays.asList(post.getTag().split("\\s*,\\s*"));
@@ -231,55 +235,62 @@ public class PostsService {
     }
 
     @Transactional
-    public ResponseEntity<? super GetPostsAllResponseDto> getMyPost(Long kakao_uid) {
-        List<PostListItem> postListItems = new ArrayList<>();;
+    public ResponseEntity<? super GetPostsAllResponseDto> getMyPost(Long kakao_uid, int page) {
+        List<PostListItem> postListItems = new ArrayList<>();
+        int totalPages;
         try {
-            List<Posts> posts = postsRepo.findAllByUserUid(kakao_uid);
-            for (Posts post : posts)
+            PageRequest pageRequest = PageRequest.of(page, 12, Sort.by("createdAt").descending());
+            Page<Posts> posts = postsRepo.findAllByKakaoId(kakao_uid, pageRequest);
+            totalPages = posts.getTotalPages();
+            for (Posts post : posts.getContent())
                 postListItems.add(PostListItem.of(post));
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems);
-        return responseDto.success(postListItems);
+        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, page, totalPages);
+        return responseDto.success(postListItems, page, totalPages);
     }
 
     @Transactional
-    public ResponseEntity<? super GetPostsAllResponseDto> getSearchPost(String searchWord) {
+    public ResponseEntity<? super GetPostsAllResponseDto> getSearchPost(String searchWord, int page) {
         List<PostListItem> postListItems = new ArrayList<>();
+        int totalPages;
         try {
-            List<Posts> posts = postsRepo.findBySearchWord(searchWord);
-            for (Posts post : posts)
+            PageRequest pageRequest = PageRequest.of(page, 12, Sort.by("createdAt").descending());
+            Page<Posts> posts = postsRepo.findBySearchWord(searchWord, pageRequest);
+            totalPages = posts.getTotalPages();
+            for (Posts post : posts.getContent())
                 postListItems.add(PostListItem.of(post));
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems);
-        return responseDto.success(postListItems);
+        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, page, totalPages);
+        return responseDto.success(postListItems, page, totalPages);
     }
 
     @Transactional
-    public ResponseEntity<? super GetPostsAllResponseDto> getCategorySearchPost(List<Long> categories) {
+    public ResponseEntity<? super GetPostsAllResponseDto> getCategorySearchPost(List<Long> categories, int page) {
         List<PostListItem> postListItems = new ArrayList<>();
+        int totalPages;
         try {
-            for (Long category : categories) {
-                List<Posts> posts = postsRepo.findByCategoryId(category);
+            PageRequest pageRequest = PageRequest.of(page, 12, Sort.by("createdAt").descending());
+            Page<Posts> posts = postsRepo.findByCategoryIds(categories, pageRequest);
+            totalPages = posts.getTotalPages();
 
-                for (Posts post : posts) {
-                    postListItems.add(PostListItem.of(post));
-                }
+            for (Posts post : posts.getContent()) {
+                postListItems.add(PostListItem.of(post));
             }
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems);
-        return responseDto.success(postListItems);
+        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, page, totalPages);
+        return responseDto.success(postListItems, page, totalPages);
     }
 
     // 스크랩
@@ -313,23 +324,27 @@ public class PostsService {
     }
 
     @Transactional
-    public ResponseEntity<? super GetPostsAllResponseDto> getAllScrapPost(Long kakao_uid) {
+    public ResponseEntity<? super GetPostsAllResponseDto> getAllScrapPost(Long kakao_uid, int page) {
         List<PostListItem> postListItems = new ArrayList<>();
+        int totalPages;
         try {
             if (userRepo.findByKakaoId(kakao_uid) == null) return PutScrapResponseDto.notExistUser();
 
+            PageRequest pageRequest = PageRequest.of(page, 12, Sort.by("createdAt").descending());
             List<Long> postIdList = scrapRepo.findPostIdsByUserId(kakao_uid);
-            List<Posts> posts = postsRepo.findByPostIds(postIdList);
+            Page<Posts> posts = postsRepo.findByPostIds(postIdList, pageRequest);
+            totalPages = posts.getTotalPages();
+
             if (posts == null) return PutScrapResponseDto.notExistedPost();
 
-            for (Posts post : posts)
+            for (Posts post : posts.getContent())
                 postListItems.add(PostListItem.of(post));
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems);
-        return responseDto.success(postListItems);
+        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, page, totalPages);
+        return responseDto.success(postListItems, page,totalPages);
     }
 }

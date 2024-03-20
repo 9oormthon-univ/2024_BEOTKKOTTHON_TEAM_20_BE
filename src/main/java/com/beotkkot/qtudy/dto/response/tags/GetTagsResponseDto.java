@@ -1,8 +1,8 @@
-package com.beotkkot.qtudy.dto.response.posts;
+package com.beotkkot.qtudy.dto.response.tags;
 
 import com.beotkkot.qtudy.common.ResponseCode;
 import com.beotkkot.qtudy.common.ResponseMessage;
-import com.beotkkot.qtudy.dto.object.PostListItem;
+import com.beotkkot.qtudy.dto.object.TagListItem;
 import com.beotkkot.qtudy.dto.response.ResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -10,22 +10,17 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-
 @Getter
-public class GetPostsAllResponseDto extends ResponseDto {
-    private int page;
-    private int totalPages;
-    private List<PostListItem> postList;
+public class GetTagsResponseDto extends ResponseDto {
+    private List<TagListItem> tagList;
 
-    public GetPostsAllResponseDto(List<PostListItem> PostListItem, int page, int totalPages) {
+    public GetTagsResponseDto(List<TagListItem> TagListItem) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
-        this.page = page;
-        this.totalPages = totalPages;
-        this.postList = PostListItem;
+        this.tagList = TagListItem;
     }
 
-    public static ResponseEntity<GetPostsAllResponseDto> success(List<PostListItem> PostListItem, int page, int totalPages) {
-        GetPostsAllResponseDto result = new GetPostsAllResponseDto(PostListItem, page, totalPages);
+    public static ResponseEntity<GetTagsResponseDto> success(List<TagListItem> tagList) {
+        GetTagsResponseDto result = new GetTagsResponseDto(tagList);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -34,6 +29,3 @@ public class GetPostsAllResponseDto extends ResponseDto {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
     }
 }
-
-
-

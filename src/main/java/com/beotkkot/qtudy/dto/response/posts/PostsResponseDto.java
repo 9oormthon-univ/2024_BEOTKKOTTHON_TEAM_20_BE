@@ -34,4 +34,9 @@ public class PostsResponseDto extends ResponseDto {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
     }
 
+    public static ResponseEntity<ResponseDto> noAuthentication() {
+        ResponseDto result = new ResponseDto(ResponseCode.AUTHORIZATION_FAIL, ResponseMessage.AUTHORIZATION_FAIL);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+    }
+
 }

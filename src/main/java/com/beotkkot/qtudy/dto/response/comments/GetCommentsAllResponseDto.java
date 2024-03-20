@@ -1,8 +1,8 @@
-package com.beotkkot.qtudy.dto.response.posts;
+package com.beotkkot.qtudy.dto.response.comments;
 
 import com.beotkkot.qtudy.common.ResponseCode;
 import com.beotkkot.qtudy.common.ResponseMessage;
-import com.beotkkot.qtudy.dto.object.PostListItem;
+import com.beotkkot.qtudy.dto.object.CommentListItem;
 import com.beotkkot.qtudy.dto.response.ResponseDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -12,20 +12,18 @@ import java.util.List;
 
 
 @Getter
-public class GetPostsAllResponseDto extends ResponseDto {
+public class GetCommentsAllResponseDto extends ResponseDto {
     private int page;
-    private int totalPages;
-    private List<PostListItem> postList;
+    private List<CommentListItem> commentList;
 
-    public GetPostsAllResponseDto(List<PostListItem> PostListItem, int page, int totalPages) {
+    public GetCommentsAllResponseDto(List<CommentListItem> commentListItem, int page) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         this.page = page;
-        this.totalPages = totalPages;
-        this.postList = PostListItem;
+        this.commentList = commentListItem;
     }
 
-    public static ResponseEntity<GetPostsAllResponseDto> success(List<PostListItem> PostListItem, int page, int totalPages) {
-        GetPostsAllResponseDto result = new GetPostsAllResponseDto(PostListItem, page, totalPages);
+    public static ResponseEntity<GetCommentsAllResponseDto> success(List<CommentListItem> commentListItem, int page) {
+        GetCommentsAllResponseDto result = new GetCommentsAllResponseDto(commentListItem, page);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

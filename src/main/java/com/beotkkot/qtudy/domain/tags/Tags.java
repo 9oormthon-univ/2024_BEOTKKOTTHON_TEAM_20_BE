@@ -21,6 +21,8 @@ public class Tags {
 
     private int count; // 태그 언급 횟수
 
+    private Long categoryId;
+
     public void increaseTagCount() {
         this.count++;
     }

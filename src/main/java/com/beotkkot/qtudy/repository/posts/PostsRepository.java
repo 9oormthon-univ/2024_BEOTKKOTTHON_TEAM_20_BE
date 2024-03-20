@@ -1,6 +1,8 @@
 package com.beotkkot.qtudy.repository.posts;
 
 import com.beotkkot.qtudy.domain.posts.Posts;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,15 +12,18 @@ import java.util.List;
 
 @Repository
 public interface PostsRepository extends JpaRepository<Posts, Long> {
-    List<Posts> findAllByUserUid(Long uuid);
+    Page<Posts> findAllByKakaoId(Long kakaoId, PageRequest pageRequest);
 
     @Query("SELECT p FROM Posts p WHERE p.title LIKE %:searchWord% OR p.content LIKE %:searchWord% OR p.tag LIKE %:searchWord%")
-    List<Posts> findBySearchWord(String searchWord);
+    Page<Posts> findBySearchWord(String searchWord, PageRequest pageRequest);
 
-    List<Posts> findByCategoryId(Long categoryId);
+    @Query("SELECT p FROM Posts p WHERE p.categoryId IN :categoryIds")
+    Page<Posts> findByCategoryIds(@Param("categoryIds")List<Long> categoryIds, PageRequest pageRequest);
 
     Posts findByPostId(Long postId);
 
+    List<Posts> findAllByPostId(Long postId);
+
     @Query("SELECT p FROM Posts p WHERE p.postId IN :postIds")
-    List<Posts> findByPostIds(@Param("postIds") List<Long> postIds);
+    Page<Posts> findByPostIds(@Param("postIds") List<Long> postIds, PageRequest pageRequest);
 }
