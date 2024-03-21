@@ -16,4 +16,6 @@ public class Users {
     private String name;
 
     private String profileImageUrl;
+
+    private boolean first;
 }

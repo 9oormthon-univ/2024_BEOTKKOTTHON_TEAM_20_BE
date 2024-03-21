@@ -17,6 +17,7 @@ public class GetAuthResponseDto extends ResponseDto {
     private String accessToken;
     private String name;
     private String profileImageUrl;
+    private boolean first;
 
     @Builder
     private GetAuthResponseDto(Users user, String accessToken) {
@@ -27,6 +28,7 @@ public class GetAuthResponseDto extends ResponseDto {
         this.accessToken = accessToken;
         this.name = user.getName();
         this.profileImageUrl = user.getProfileImageUrl();
+        this.first = user.isFirst();
     }
 
     public static ResponseEntity<GetAuthResponseDto> success(Users user, String accessToken) {
