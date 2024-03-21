@@ -9,6 +9,7 @@ public interface ResponseMessage {
     String NOT_EXISTED_USER = "This user does not exist.";
     String NOT_EXISTED_POST = "This post does not exist.";
     String NOT_EXISTED_COMMENT = "This comment does not exist.";
+    String INVALID_FORMAT = "Invalid Format";
 
     // HTTP Status 401
     String SIGN_IN_FAIL = "Login information mismatch.";

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class KakaoUserInfo {
     private Long id;
     private String name;
+    private String email;
     private String profileImageUrl;
     private String accessToken;
 
