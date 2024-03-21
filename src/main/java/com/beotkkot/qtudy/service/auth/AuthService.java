@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
@@ -96,12 +97,14 @@ public class AuthService {
             // 유저 정보 추출
             Long id = element.getAsJsonObject().get("id").getAsLong();
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
+            JsonObject kakaoAccount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+
             System.out.println("properties = " + properties);
             String name = properties.getAsJsonObject().get("nickname").getAsString();
             String profileImageUrl = properties.getAsJsonObject().get("profile_image").getAsString();
-
+            String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
             // 카카오 유저 정보 생성해서 리턴
-            return new KakaoUserInfo(id, name, profileImageUrl, accessToken);
+            return new KakaoUserInfo(id, name, email, profileImageUrl, accessToken);
 
         } catch (Exception exception) {
             log.info("error message: " + exception.getMessage());
@@ -109,6 +112,7 @@ public class AuthService {
         }
     }
 
+    @Transactional
     // 3. 사용자 정보를 DB에서 조회하고, 가입되지 않은 사용자라면 DB에 저장 후 해당 사용자 반환
     public Users login(KakaoUserInfo kakaoUserInfo) {
         Long kakaoId = kakaoUserInfo.getId();   // 사용자의 카카오 아이디 불러오기
@@ -120,8 +124,14 @@ public class AuthService {
             userService.saveUser(kakaoUserInfo);
             // 사용자 재조회
             findUser = userService.findUserKaKaoId(kakaoId);
+            // 최초 사용자로 설정
+            findUser.setFirst(true);
+            System.out.println("findUser.isFirst() = " + findUser.isFirst());
+        } else {    // 이미 가입한 사용자라면
+            if (findUser.isFirst()) {
+                findUser.setFirst(false);
+            }
         }
-
         return findUser;
     }
 
