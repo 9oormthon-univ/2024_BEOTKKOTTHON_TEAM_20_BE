@@ -14,6 +14,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
     Quiz findByQuizId(Long quizId);
 
-    @Query("SELECT q FROM Quiz q WHERE q.tags LIKE %:tagName% ORDER BY RAND() LIMIT 10")
+    @Query("SELECT q FROM Quiz q WHERE q.tags LIKE %:tagName% ORDER BY q.quizId ASC, RAND() LIMIT 10")
     List<Quiz> findByTagName(@Param("tagName") String tagName);
+
 }

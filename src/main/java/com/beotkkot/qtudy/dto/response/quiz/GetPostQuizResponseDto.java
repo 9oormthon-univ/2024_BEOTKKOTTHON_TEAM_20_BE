@@ -12,19 +12,21 @@ import java.util.List;
 
 @Getter
 public class GetPostQuizResponseDto extends ResponseDto {
+    private String type;
     private List<String> answerList;
     private List<Long> quizIdList;
     private List<QuizListItem> quizList;
 
-    public GetPostQuizResponseDto(List<QuizListItem> QuizListItem, List<String> AnswerListItem, List<Long> quizIdList) {
+    public GetPostQuizResponseDto(List<QuizListItem> QuizListItem, List<String> AnswerListItem, List<Long> quizIdList, String type) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
+        this.type = type;
         this.answerList = AnswerListItem;
         this.quizIdList = quizIdList;
         this.quizList = QuizListItem;
     }
 
-    public static ResponseEntity<GetPostQuizResponseDto> success(List<QuizListItem> QuizListItem, List<String> AnswerListItem, List<Long> quizIdList) {
-        GetPostQuizResponseDto result = new GetPostQuizResponseDto(QuizListItem, AnswerListItem, quizIdList);
+    public static ResponseEntity<GetPostQuizResponseDto> success(List<QuizListItem> QuizListItem, List<String> AnswerListItem, List<Long> quizIdList, String type) {
+        GetPostQuizResponseDto result = new GetPostQuizResponseDto(QuizListItem, AnswerListItem, quizIdList, type);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 

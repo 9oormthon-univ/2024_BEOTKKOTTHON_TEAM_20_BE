@@ -17,4 +17,4 @@ spring:
       ddl-auto: update
 
 # OPEN AI API KEY
-API_KEY: ${API_KEY}
+GPT_API_KEY: ${GPT_API_KEY}

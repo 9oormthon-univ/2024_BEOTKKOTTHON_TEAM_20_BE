@@ -10,6 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GradeQuizRequestDto {
+    private String type;
     private List<Long> quizIdList;
     private List<String> answerList;
     private List<Integer> userAnswerList;
