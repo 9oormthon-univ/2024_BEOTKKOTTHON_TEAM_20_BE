@@ -38,6 +38,8 @@ public class PostsService {
     @Transactional
     public ResponseEntity<? super PostsResponseDto> savePost(Long kakao_uid, PostsRequestDto dto) {
         Long postId;
+        List<Tags> newTagList = new ArrayList<>();
+        List<String> increasedTag = new ArrayList<>();
         try {
 
             if (userRepo.findByKakaoId(kakao_uid) != null) {
@@ -47,7 +49,6 @@ public class PostsService {
 
                 // 태그 처리
                 List<String> postTags = dto.getTag();
-                List<String> savedTags = new ArrayList<>();
 
                 for (String tagName : postTags) {
                     Optional<Tags> existingTag = tagRepo.findByName(tagName);
@@ -55,27 +56,23 @@ public class PostsService {
                         // 기존에 있는 태그인 경우 count를 증가시킴
                         Tags tag = existingTag.get();
                         tag.increaseTagCount();
-                        savedTags.add(tagName);
+                        increasedTag.add(tagName);
                     } else {
                         // 새로운 태그인 경우 태그를 생성하고 count를 1로 초기화함
                         Tags newTag = new Tags();
                         newTag.setName(tagName);
                         newTag.setCount(1); // 새로운 태그의 count를 1로 초기화
                         newTag.setCategoryId(dto.getCategoryId());
-                        savedTags.add(tagName);
 
-                        // 새로운 태그를 저장
-                        tagRepo.save(newTag);
+                        newTagList.add(newTag);
                     }
                 }
 
                 // 저장된 태그 목록을 포스트에 설정
-                String tagString = String.join(",", savedTags);
+                String tagString = String.join(",", postTags);
                 post.setTag(tagString);
 
-                /**
-                 * postRepo에 해당 유저가 작성한 글에 대한 요약본 저장하는 부분 추가
-                 */
+                // postRepo에 해당 유저가 작성한 글에 대한 요약본 저장하는 부분 추가
                 String summary = summaryService.summary(dto.getContent());
                 post.setContent(dto.getContent());
                 post.setSummary(summary);
@@ -84,11 +81,17 @@ public class PostsService {
                 Posts savedPost = postsRepo.save(post);
                 postId = savedPost.getPostId();
 
+                tagRepo.saveAll(newTagList);
             } else {
                 return PostsResponseDto.notExistUser();
             }
         } catch (Exception exception) {
             exception.printStackTrace();
+            for (String tagName : increasedTag) {
+                Optional<Tags> existingTag = tagRepo.findByName(tagName);
+                Tags tag = existingTag.get();
+                tag.decreaseTagCount();
+            }
             return ResponseDto.databaseError();
         }
         return PostsResponseDto.success(postId);
