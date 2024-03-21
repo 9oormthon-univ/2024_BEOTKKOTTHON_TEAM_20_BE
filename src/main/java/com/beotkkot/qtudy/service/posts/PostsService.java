@@ -37,6 +37,7 @@ public class PostsService {
 
     @Transactional
     public ResponseEntity<? super PostsResponseDto> savePost(Long kakao_uid, PostsRequestDto dto) {
+        Long postId;
         try {
 
             if (userRepo.findByKakaoId(kakao_uid) != null) {
@@ -79,8 +80,9 @@ public class PostsService {
                 post.setContent(dto.getContent());
                 post.setSummary(summary);
 
-                // 포스트 저장
-                postsRepo.save(post);
+                // 포스트 저장 후 postId 반환
+                Posts savedPost = postsRepo.save(post);
+                postId = savedPost.getPostId();
 
             } else {
                 return PostsResponseDto.notExistUser();
@@ -89,7 +91,7 @@ public class PostsService {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return PostsResponseDto.success();
+        return PostsResponseDto.success(postId);
     }
 
     @Transactional
@@ -201,7 +203,7 @@ public class PostsService {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return PostsResponseDto.success();
+        return PostsResponseDto.success(postId);
     }
 
     @Transactional
@@ -231,7 +233,7 @@ public class PostsService {
             return ResponseDto.databaseError();
         }
 
-        return PostsResponseDto.success();
+        return PostsResponseDto.success(postId);
     }
 
     @Transactional

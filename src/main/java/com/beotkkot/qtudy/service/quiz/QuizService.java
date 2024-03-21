@@ -1,8 +1,12 @@
 package com.beotkkot.qtudy.service.quiz;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
+import com.beotkkot.qtudy.domain.posts.Posts;
 import com.beotkkot.qtudy.domain.quiz.Quiz;
+import com.beotkkot.qtudy.domain.quiz.Review;
 import com.beotkkot.qtudy.dto.object.QuizDto;
 import com.beotkkot.qtudy.dto.object.QuizGradeListItem;
 import com.beotkkot.qtudy.dto.object.QuizListItem;
@@ -13,7 +17,9 @@ import com.beotkkot.qtudy.dto.request.quiz.PostQuizRequestDto;
 import com.beotkkot.qtudy.dto.response.ResponseDto;
 import com.beotkkot.qtudy.dto.response.quiz.GetPostQuizResponseDto;
 import com.beotkkot.qtudy.dto.response.quiz.QuizGradeResponseDto;
+import com.beotkkot.qtudy.repository.posts.PostsRepository;
 import com.beotkkot.qtudy.repository.quiz.QuizRepository;
+import com.beotkkot.qtudy.repository.quiz.ReviewRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,16 +38,18 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 @Service
 public class QuizService {
-    @Value("${API_KEY}")
-    private String API_KEY;
+    @Value("${GPT_API_KEY}")
+    private String GPT_API_KEY;
     private static final String ENDPOINT = "https://api.openai.com/v1/chat/completions";
     private final QuizRepository quizRepo;
+    private final ReviewRepository reviewRepo;
+    private final PostsRepository postRepo;
 
     // 퀴즈 생성기
     public String generateQuiz(GenerateQuizRequestDto genQuizReqDto) throws JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + API_KEY);
+        headers.set("Authorization", "Bearer " + GPT_API_KEY);
 
         List<ChatMessageRequestDto> messages = new ArrayList<>();
 
@@ -110,6 +118,7 @@ public class QuizService {
         List<QuizListItem> quizListItems = new ArrayList<>();
         List<String> answerList = new ArrayList<>();
         List<Long> quizIdList = new ArrayList<>();
+        String type = "post";
         try {
             List<Quiz> quizzes = quizRepo.findAllByPostId(postId);
             for (Quiz quiz : quizzes) {
@@ -122,8 +131,8 @@ public class QuizService {
             return ResponseDto.databaseError();
         }
 
-        GetPostQuizResponseDto responseDto = new GetPostQuizResponseDto(quizListItems, answerList, quizIdList);
-        return responseDto.success(quizListItems, answerList, quizIdList);
+        GetPostQuizResponseDto responseDto = new GetPostQuizResponseDto(quizListItems, answerList, quizIdList, type);
+        return responseDto.success(quizListItems, answerList, quizIdList, type);
     }
 
     @Transactional
@@ -131,6 +140,7 @@ public class QuizService {
         List<QuizListItem> quizListItems = new ArrayList<>();
         List<String> answerList = new ArrayList<>();
         List<Long> quizIdList = new ArrayList<>();
+        String type = "tag";
         try {
             List<Quiz> quizzes = quizRepo.findByTagName(tagName);
             for (Quiz quiz : quizzes) {
@@ -143,26 +153,33 @@ public class QuizService {
             return ResponseDto.databaseError();
         }
 
-        GetPostQuizResponseDto responseDto = new GetPostQuizResponseDto(quizListItems, answerList, quizIdList);
-        return responseDto.success(quizListItems, answerList, quizIdList);
+        GetPostQuizResponseDto responseDto = new GetPostQuizResponseDto(quizListItems, answerList, quizIdList, type);
+        return responseDto.success(quizListItems, answerList, quizIdList, type);
     }
 
     @Transactional
-    public ResponseEntity<? super QuizGradeResponseDto> gradeQuiz(GradeQuizRequestDto dto) {
+    public ResponseEntity<? super QuizGradeResponseDto> gradeQuiz(GradeQuizRequestDto dto, Long uuid) {
         List<QuizGradeListItem> gradeList = new ArrayList<>();
         List<String> answerList = new ArrayList<>(dto.getAnswerList());
         List<Integer> userAnswerList = new ArrayList<>(dto.getUserAnswerList());
-        int score = 0;
+        String reviewId = UUID.randomUUID().toString();
+
+        Date now = Date.from(Instant.now());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String writeDatetime = simpleDateFormat.format(now);
+        int totalScore = 0;
 
         try {
             for (int i=0; i<answerList.size(); i++) {
                 boolean correct = false;
+                int score = 0; // 각 문제의 점수를 따로 계산하기 위해 반복마다 초기화
                 Quiz quiz = quizRepo.findByQuizId(dto.getQuizIdList().get(i));
+                Posts post = postRepo.findByPostId(quiz.getPostId());
 
                 // 정답이 int로 입력되어있을 경우
                 if (answerList.get(i).length() == 1) {
                     if (Integer.valueOf(answerList.get(i)) == userAnswerList.get(i)) {
-                        score += 10;
+                        score = 10;
                         correct = true;
                     }
                 }
@@ -171,20 +188,38 @@ public class QuizService {
                     List<String> options = Arrays.asList(quiz.getOptions().split("\\s*,\\s*"));
                     String userAnswer = options.get(userAnswerList.get(i));
                     if (answerList.get(i).equals(userAnswer)) {
-                        score += 10;
+                        score = 10;
                         correct = true;
                     }
                 }
 
+                // 오답노트 entity에 저장
+                Review newReview = new Review();
+                newReview.setUserId(uuid);
+                newReview.setPostId(quiz.getPostId());
+                newReview.setQuizId(quiz.getQuizId());
+                newReview.setReviewId(reviewId);
+                newReview.setType(dto.getType());
+                newReview.setCreatedAt(writeDatetime);
+                newReview.setUserAnswer(userAnswerList.get(i));
+                newReview.setAnswer(answerList.get(i));
+                newReview.setCorrect(correct);
+                newReview.setExplanation(quiz.getExplanation());
+                newReview.setCategoryId(post.getCategoryId());
+                newReview.setScore(score);
+                newReview.setTags(quiz.getTags());
+                reviewRepo.save(newReview);
 
                 gradeList.add(QuizGradeListItem.of(quiz, correct, userAnswerList.get(i)));
+                totalScore += score; // 총점 누적
             }
+
         } catch (Exception exception) {
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        QuizGradeResponseDto responseDto = new QuizGradeResponseDto(gradeList, score);
-        return responseDto.success(gradeList, score);
+        QuizGradeResponseDto responseDto = new QuizGradeResponseDto(gradeList, totalScore);
+        return responseDto.success(gradeList, totalScore);
     }
 }
