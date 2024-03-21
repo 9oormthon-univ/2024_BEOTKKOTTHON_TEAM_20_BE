@@ -9,13 +9,15 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class PostsResponseDto extends ResponseDto {
+    private Long postId;
 
-    private PostsResponseDto() {
+    private PostsResponseDto(Long postId) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
+        this.postId = postId;
     }
 
-    public static ResponseEntity<PostsResponseDto> success() {
-        PostsResponseDto result = new PostsResponseDto();
+    public static ResponseEntity<PostsResponseDto> success(Long postId) {
+        PostsResponseDto result = new PostsResponseDto(postId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
