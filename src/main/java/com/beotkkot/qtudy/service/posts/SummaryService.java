@@ -3,6 +3,7 @@ package com.beotkkot.qtudy.service.posts;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,19 +17,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Service
 public class SummaryService {
+    @Value("${CLOVA_API_KEY_ID}")
+    private String CLOVA_API_KEY_ID;
+    @Value("${CLOVA_API_KEY}")
+    private String CLOVA_API_KEY;
+    private static final String ENDPOINT = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
 
     // 텍스트 데이터 받아와서 요약
     public String summary(String content) {
-
-        String requestURL = "https://naveropenapi.apigw.ntruss.com/text-summary/v1/summarize";
 
         RestTemplate rt = new RestTemplate();
 
         // HTTPHeader
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;UTF-8");
-        headers.add("X-NCP-APIGW-API-KEY-ID", "m099ib4o3p");
-        headers.add("X-NCP-APIGW-API-KEY", "lNTRtcRh3AIVZfCysWBmO73eoRHnEF0NVyJTYoSx");
+        headers.add("X-NCP-APIGW-API-KEY-ID", CLOVA_API_KEY_ID);
+        headers.add("X-NCP-APIGW-API-KEY", CLOVA_API_KEY);
 
         // HTTPBody
         Map<String, Object> document = new HashMap<>();
@@ -46,7 +50,7 @@ public class SummaryService {
         System.out.println("params = " + params);
 
         HttpEntity<Map<String, Object>> summaryTextRequest = new HttpEntity<>(params, headers);
-        ResponseEntity<String> response = rt.exchange(requestURL, HttpMethod.POST, summaryTextRequest, String.class);
+        ResponseEntity<String> response = rt.exchange(ENDPOINT, HttpMethod.POST, summaryTextRequest, String.class);
 
         String responseBody = response.getBody();
 
