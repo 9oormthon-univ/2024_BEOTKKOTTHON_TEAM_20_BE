@@ -1,4 +1,4 @@
-package com.beotkkot.qtudy.dto.response.auth;
+package com.beotkkot.qtudy.dto.response.mypage;
 
 import com.beotkkot.qtudy.common.ResponseCode;
 import com.beotkkot.qtudy.common.ResponseMessage;
@@ -10,29 +10,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class GetAuthResponseDto extends ResponseDto {
+public class GetMyPageInfoResponseDto extends ResponseDto {
 
-    private Long kakaoId;
-    private Long id;
-    private String accessToken;
     private String name;
     private String profileImageUrl;
-    private boolean first;
+    private String email;
 
     @Builder
-    private GetAuthResponseDto(Users user, String accessToken) {
+    private GetMyPageInfoResponseDto(Users user, String email) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
-
-        this.kakaoId = user.getKakaoId();
-        this.id = user.getUserId();
-        this.accessToken = accessToken;
         this.name = user.getName();
-        this.profileImageUrl = user.getProfileImageUrl();
-        this.first = user.isFirst();
+        this.email = email;
+        this.profileImageUrl = null;
     }
 
-    public static ResponseEntity<GetAuthResponseDto> success(Users user, String accessToken) {
-        GetAuthResponseDto result = new GetAuthResponseDto(user, accessToken);
+    public static ResponseEntity<GetMyPageInfoResponseDto> success(Users user, String email) {
+        GetMyPageInfoResponseDto result = new GetMyPageInfoResponseDto(user, email);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -41,7 +34,7 @@ public class GetAuthResponseDto extends ResponseDto {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
     }
 
-    public static ResponseEntity<ResponseDto> noExistUser() {
+    public static ResponseEntity<ResponseDto> notExistedUser() {
         ResponseDto result = new ResponseDto(ResponseCode.NOT_EXISTED_USER, ResponseMessage.NOT_EXISTED_USER);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
     }

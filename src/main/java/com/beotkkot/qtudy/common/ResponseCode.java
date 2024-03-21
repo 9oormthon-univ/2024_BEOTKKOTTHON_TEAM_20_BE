@@ -9,6 +9,7 @@ public interface ResponseCode {
     String NOT_EXISTED_USER = "NEU";
     String NOT_EXISTED_POST = "NEP";
     String NOT_EXISTED_COMMENT = "NEC";
+    String INVALID_FORMAT = "IF";
 
     // HTTP Status 401
     String SIGN_IN_FAIL = "SF";
