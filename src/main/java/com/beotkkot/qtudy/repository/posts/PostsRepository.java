@@ -22,7 +22,8 @@ public interface PostsRepository extends JpaRepository<Posts, Long> {
 
     Posts findByPostId(Long postId);
 
-    List<Posts> findAllByPostId(Long postId);
+    @Query("SELECT p FROM Posts p WHERE p.postId IN :postIds")
+    List<Posts> findAllByPostId(List<Long> postIds);
 
     @Query("SELECT p FROM Posts p WHERE p.postId IN :postIds")
     Page<Posts> findByPostIds(@Param("postIds") List<Long> postIds, PageRequest pageRequest);
