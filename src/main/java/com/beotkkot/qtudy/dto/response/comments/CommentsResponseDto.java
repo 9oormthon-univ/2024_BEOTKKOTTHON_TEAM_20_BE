@@ -9,12 +9,18 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class CommentsResponseDto extends ResponseDto{
-    public CommentsResponseDto() {
+
+    private String name;
+    private String profileImageUrl;
+
+    public CommentsResponseDto(String name, String profileImageUrl) {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
     }
 
-    public static ResponseEntity<CommentsResponseDto> success() {
-        CommentsResponseDto result = new CommentsResponseDto();
+    public static ResponseEntity<CommentsResponseDto> success(String name, String profileImageUrl) {
+        CommentsResponseDto result = new CommentsResponseDto(name, profileImageUrl);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -31,5 +37,10 @@ public class CommentsResponseDto extends ResponseDto{
     public static ResponseEntity<? super CommentsResponseDto> notExistedComment() {
         ResponseDto result = new ResponseDto(ResponseCode.NOT_EXISTED_COMMENT, ResponseMessage.NOT_EXISTED_COMMENT);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+    }
+
+    public static ResponseEntity<ResponseDto> noPermission() {
+        ResponseDto result = new ResponseDto(ResponseCode.NO_PERMISSION, ResponseMessage.NO_PERMISSION);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result);
     }
 }
