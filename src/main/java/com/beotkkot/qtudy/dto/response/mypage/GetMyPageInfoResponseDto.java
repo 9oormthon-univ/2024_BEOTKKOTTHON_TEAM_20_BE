@@ -21,7 +21,7 @@ public class GetMyPageInfoResponseDto extends ResponseDto {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
         this.name = user.getName();
         this.email = email;
-        this.profileImageUrl = null;
+        this.profileImageUrl = user.getProfileImageUrl();
     }
 
     public static ResponseEntity<GetMyPageInfoResponseDto> success(Users user, String email) {
