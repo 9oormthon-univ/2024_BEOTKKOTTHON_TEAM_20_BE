@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.*;
 
 @Slf4j
@@ -314,9 +316,13 @@ public class PostsService {
 
             Scrap scrap = scrapRepo.findByPostIdAndUserId(postId, kakao_uid);
 
+            Date now = Date.from(Instant.now());
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String scrapDatetime = simpleDateFormat.format(now);
+
             // 존재하지 않는다면 추가. 존재한다면 삭제
             if (scrap == null) {
-                scrap = new Scrap(kakao_uid, postId);
+                scrap = new Scrap(kakao_uid, postId, scrapDatetime);
                 scrapRepo.save(scrap);
                 post.increaseScrapCount();
             }

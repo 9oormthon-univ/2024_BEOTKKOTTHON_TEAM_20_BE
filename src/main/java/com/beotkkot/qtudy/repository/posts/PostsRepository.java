@@ -22,9 +22,9 @@ public interface PostsRepository extends JpaRepository<Posts, Long> {
 
     Posts findByPostId(Long postId);
 
-    @Query("SELECT p FROM Posts p WHERE p.postId IN :postIds")
+    @Query("SELECT p FROM Posts p JOIN Scrap s ON p.postId = s.postId WHERE s.postId IN :postIds ORDER BY s.scrapAt DESC")
     List<Posts> findAllByPostId(List<Long> postIds);
 
-    @Query("SELECT p FROM Posts p WHERE p.postId IN :postIds")
+    @Query("SELECT p FROM Posts p JOIN Scrap s ON p.postId = s.postId WHERE s.postId IN :postIds ORDER BY s.scrapAt DESC")
     Page<Posts> findByPostIds(@Param("postIds") List<Long> postIds, PageRequest pageRequest);
 }
