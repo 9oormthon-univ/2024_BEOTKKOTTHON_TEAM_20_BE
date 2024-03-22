@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,6 +28,8 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class AuthService {
 
+    @Value("${OAUTH_CLIENT_ID}")
+    private String OAUTH_CLIENT_ID;
     private final UserService userService;
 
     // 1. 코드를 이용해 카카오로부터 토큰 얻기
@@ -46,8 +49,8 @@ public class AuthService {
         // HttpBody
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type","authorization_code");
-        params.add("client_id", "1aa00eb5cc4f6a4a7678fdbef90fbb97");
-        params.add("redirect_uti", "http://localhost:3000/auth/redirected/kakao");
+        params.add("client_id", OAUTH_CLIENT_ID);
+        params.add("redirect_uti", "https://qtudy.site/auth/redirected/kakao");
         params.add("code", code);
 
         // header, body를 가진 엔티티

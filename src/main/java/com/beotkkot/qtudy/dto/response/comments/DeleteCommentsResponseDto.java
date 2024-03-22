@@ -8,19 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class CommentsResponseDto extends ResponseDto{
-
-    private String name;
-    private String profileImageUrl;
-
-    public CommentsResponseDto(String name, String profileImageUrl) {
+public class DeleteCommentsResponseDto extends ResponseDto{
+    public DeleteCommentsResponseDto() {
         super(ResponseCode.SUCCESS, ResponseMessage.SUCCESS);
-        this.name = name;
-        this.profileImageUrl = profileImageUrl;
     }
 
-    public static ResponseEntity<CommentsResponseDto> success(String name, String profileImageUrl) {
-        CommentsResponseDto result = new CommentsResponseDto(name, profileImageUrl);
+    public static ResponseEntity<DeleteCommentsResponseDto> success() {
+        DeleteCommentsResponseDto result = new DeleteCommentsResponseDto();
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -34,7 +28,7 @@ public class CommentsResponseDto extends ResponseDto{
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
     }
 
-    public static ResponseEntity<? super CommentsResponseDto> notExistedComment() {
+    public static ResponseEntity<? super DeleteCommentsResponseDto> notExistedComment() {
         ResponseDto result = new ResponseDto(ResponseCode.NOT_EXISTED_COMMENT, ResponseMessage.NOT_EXISTED_COMMENT);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
     }
