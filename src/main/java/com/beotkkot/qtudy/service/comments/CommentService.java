@@ -2,6 +2,7 @@ package com.beotkkot.qtudy.service.comments;
 
 import com.beotkkot.qtudy.domain.comments.Comments;
 import com.beotkkot.qtudy.domain.posts.Posts;
+import com.beotkkot.qtudy.domain.user.Users;
 import com.beotkkot.qtudy.dto.object.CommentListItem;
 import com.beotkkot.qtudy.dto.request.comments.CommentsRequestDto;
 import com.beotkkot.qtudy.dto.response.ResponseDto;
@@ -68,11 +69,11 @@ public class CommentService {
         List<CommentListItem> commentListItems = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, 4, Sort.by("createdAt").descending());
         try {
-            Posts post = postRepo.findByPostId(postId);
             List<Comments> comments = commentRepo.findAllByPostId(postId, pageable).getContent();
 
             for (Comments comment : comments) {
-                commentListItems.add(CommentListItem.of(comment));
+                Users user = userRepo.findByKakaoId(comment.getUserUid());
+                commentListItems.add(CommentListItem.of(comment, user));
             }
         } catch (Exception exception) {
             log.info("error ", exception.getMessage());
