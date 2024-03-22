@@ -17,4 +17,6 @@ public class Scrap {
 
     @Id
     private Long postId;
+
+    private String scrapAt;
 }
