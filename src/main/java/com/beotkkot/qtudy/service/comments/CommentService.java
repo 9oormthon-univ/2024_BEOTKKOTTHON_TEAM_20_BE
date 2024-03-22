@@ -6,6 +6,7 @@ import com.beotkkot.qtudy.dto.object.CommentListItem;
 import com.beotkkot.qtudy.dto.request.comments.CommentsRequestDto;
 import com.beotkkot.qtudy.dto.response.ResponseDto;
 import com.beotkkot.qtudy.dto.response.comments.CommentsResponseDto;
+import com.beotkkot.qtudy.dto.response.comments.DeleteCommentsResponseDto;
 import com.beotkkot.qtudy.dto.response.comments.GetCommentsAllResponseDto;
 import com.beotkkot.qtudy.repository.comments.CommentsRepository;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
@@ -53,16 +54,14 @@ public class CommentService {
 
                 // postRespo의 commentCount 업데이트
                 int commentCount = commentRepo.countByPostId(postId);
-                List<Posts> posts = postRepo.findAllByPostId(postId);
-                for (Posts post : posts) {
-                    post.setCommentCount(commentCount);
-                }
+                Posts post = postRepo.findByPostId(postId);
+                post.setCommentCount(commentCount);
             }
         } catch (Exception exception) {
             log.info("error " + exception.getMessage());
             return ResponseDto.databaseError();
         }
-        return CommentsResponseDto.success();
+        return CommentsResponseDto.success(userRepo.findByKakaoId(userUid).getName(), userRepo.findByKakaoId(userUid).getProfileImageUrl());
     }
 
     public ResponseEntity<? super GetCommentsAllResponseDto> getAllComment(Long postId, int page) {
@@ -96,28 +95,35 @@ public class CommentService {
             } else {
                 // 댓글 수정
                 Comments comment = commentRepo.findById(commentId).get();
+                System.out.println("comment.getUserUid() = " + comment.getUserUid());
+                System.out.println("userUid = " + userUid);
+                if (!comment.getUserUid().equals(userUid)) {
+                    return CommentsResponseDto.noPermission();
+                }
                 comment.setContent(dto.getContent());
-                System.out.println("content = " + comment.getContent());
             }
         } catch (Exception exception) {
             log.info("error " + exception.getMessage());
             return ResponseDto.databaseError();
         }
-        return CommentsResponseDto.success();
+        return CommentsResponseDto.success(userRepo.findByKakaoId(userUid).getName(), userRepo.findByKakaoId(userUid).getProfileImageUrl());
     }
 
     @Transactional
-    public ResponseEntity<? super CommentsResponseDto> deleteComment(Long postId, Long commentId, Long userUid) {
+    public ResponseEntity<? super DeleteCommentsResponseDto> deleteComment(Long postId, Long commentId, Long userUid) {
         try {
             if (userRepo.findByKakaoId(userUid) == null) {
-                return CommentsResponseDto.notExistedUser();
+                return DeleteCommentsResponseDto.notExistedUser();
             } else if (!postRepo.existsById(postId)) {
-                return CommentsResponseDto.notExistedPost();
+                return DeleteCommentsResponseDto.notExistedPost();
             } else if (!commentRepo.existsById(commentId)) {
-                return CommentsResponseDto.notExistedComment();
+                return DeleteCommentsResponseDto.notExistedComment();
             } else {
                 // 댓글 삭제
                 Comments comment = commentRepo.findById(commentId).get();
+                if (!comment.getUserUid().equals(userUid)) {
+                    return DeleteCommentsResponseDto.noPermission();
+                }
                 commentRepo.delete(comment);
 
                 // postRespo의 commentCount 업데이트
@@ -129,6 +135,6 @@ public class CommentService {
             log.info("error " + exception.getMessage());
             return ResponseDto.databaseError();
         }
-        return CommentsResponseDto.success();
+        return DeleteCommentsResponseDto.success();
     }
 }
