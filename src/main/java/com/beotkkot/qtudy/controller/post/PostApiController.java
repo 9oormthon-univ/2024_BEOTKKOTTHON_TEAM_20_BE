@@ -138,4 +138,19 @@ public class PostApiController {
         ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getAllScrapPost(kakao_uid, page);
         return response;
     }
+
+    @GetMapping("/posts/all-scrap-list")
+    public ResponseEntity<? super GetPostsAllResponseDto> getAllScrapPostNoPage(@RequestHeader(value="Authorization") String token) {
+        Long kakao_uid;
+        try {
+            kakao_uid = authService.getKakaoUserInfo(token).getId();
+            if (kakao_uid == null)
+                return PostsResponseDto.noAuthentication();
+        } catch (Exception exception) {
+            log.info(exception.getMessage());
+            return PostsResponseDto.databaseError();
+        }
+        ResponseEntity<? super GetPostsAllResponseDto> response = postsService.getAllScrapPostNoPage(kakao_uid);
+        return response;
+    }
 }

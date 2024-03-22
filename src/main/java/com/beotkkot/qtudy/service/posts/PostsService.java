@@ -358,4 +358,27 @@ public class PostsService {
         GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, page, totalPages);
         return responseDto.success(postListItems, page,totalPages);
     }
+
+    @Transactional
+    public ResponseEntity<? super GetPostsAllResponseDto> getAllScrapPostNoPage(Long kakao_uid) {
+        List<PostListItem> postListItems = new ArrayList<>();
+        int totalPages;
+        try {
+            if (userRepo.findByKakaoId(kakao_uid) == null) return PutScrapResponseDto.notExistUser();
+
+            List<Long> postIdList = scrapRepo.findPostIdsByUserId(kakao_uid);
+            List<Posts> posts = postsRepo.findAllByPostId(postIdList);
+
+            if (posts == null) return PutScrapResponseDto.notExistedPost();
+
+            for (Posts post : posts)
+                postListItems.add(PostListItem.of(post));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        GetPostsAllResponseDto responseDto = new GetPostsAllResponseDto(postListItems, 0, 0);
+        return responseDto.success(postListItems, 0, 0);
+    }
 }
