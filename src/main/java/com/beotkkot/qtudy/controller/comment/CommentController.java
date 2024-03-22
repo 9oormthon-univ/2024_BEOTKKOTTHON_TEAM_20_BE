@@ -2,6 +2,7 @@ package com.beotkkot.qtudy.controller.comment;
 
 import com.beotkkot.qtudy.dto.request.comments.CommentsRequestDto;
 import com.beotkkot.qtudy.dto.response.comments.CommentsResponseDto;
+import com.beotkkot.qtudy.dto.response.comments.DeleteCommentsResponseDto;
 import com.beotkkot.qtudy.dto.response.comments.GetCommentsAllResponseDto;
 import com.beotkkot.qtudy.dto.response.posts.PostsResponseDto;
 import com.beotkkot.qtudy.service.auth.AuthService;
@@ -66,7 +67,7 @@ public class CommentController {
 
     // 댓글 삭제
     @DeleteMapping("/posts/comments")
-    public ResponseEntity<? super CommentsResponseDto> deleteComment(@RequestParam("postId") Long postId, @RequestParam("commentId") Long commentId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<? super DeleteCommentsResponseDto> deleteComment(@RequestParam("postId") Long postId, @RequestParam("commentId") Long commentId, @RequestHeader("Authorization") String token) {
         Long kakao_uid;
         try {
             kakao_uid = authService.getKakaoUserInfo(token).getId();
@@ -78,7 +79,7 @@ public class CommentController {
             return PostsResponseDto.databaseError();
         }
 
-        ResponseEntity<? super CommentsResponseDto> response = commentService.deleteComment(postId, commentId, kakao_uid);
+        ResponseEntity<? super DeleteCommentsResponseDto> response = commentService.deleteComment(postId, commentId, kakao_uid);
         return response;
     }
 }
