@@ -10,7 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://www.qtudy.site")
+                .allowedOrigins("http://localhost:3000", "https://qtudy.site")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH") // 허용할 HTTP 메서드 설정
                 .allowCredentials(true); // Credential 허용 여부 설정
     }
