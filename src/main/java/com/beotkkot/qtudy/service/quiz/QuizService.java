@@ -53,16 +53,17 @@ public class QuizService {
 
         List<ChatMessageRequestDto> messages = new ArrayList<>();
 
-        messages.add(new ChatMessageRequestDto("system", "관련된 객관식 10문제 한국어로 출제. len(options)==4이며, answer은 단 하나만 존재하고 options의 index 반환. 출력 양식:\n" +
-                "[{\"question\": \"\",\n" +
-                "\"answer\": \"\",\n" +
-                "\"options\": [\"\", \"\", \"\", \"\"],\n" +
-                "\"explanation\": \"\"}]\""));
+        messages.add(new ChatMessageRequestDto("system",
+                "관련된 객관식 10문제 한국어로 출제. len(options)==4이며, answer은 단 하나만 존재하고 options의 index 반환. 출력 양식:\n" +
+                        "[{\"question\": \"\",\n" +
+                        "\"answer\": \"\",\n" +
+                        "\"options\": [\"\", \"\", \"\", \"\"],\n" +
+                        "\"explanation\": \"\"}]\""));
         messages.add(new ChatMessageRequestDto("user", genQuizReqDto.getSummary()));
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("messages", messages);
-        requestBody.put("model","gpt-3.5-turbo"); // "gpt-4-1106-preview"
+        requestBody.put("model", "gpt-4-1106-preview");
         requestBody.put("temperature", 0.0f);
         requestBody.put("max_tokens", 4000);
 
@@ -80,9 +81,11 @@ public class QuizService {
 
         log.info("*** content: " + content);
 
-        // content를 json으로 파싱 후 "data" list 안에 "question", "answer", "options", "explanation"을 QuizDto에 담을 것
+        // content를 json으로 파싱 후 "data" list 안에 "question", "answer", "options",
+        // "explanation"을 QuizDto에 담을 것
         ObjectMapper objectMapper = new ObjectMapper();
-        List<QuizDto> quizDtoList = objectMapper.readValue(content, new TypeReference<List<QuizDto>>() {});
+        List<QuizDto> quizDtoList = objectMapper.readValue(content, new TypeReference<List<QuizDto>>() {
+        });
 
         log.info("*** quizDtoList: " + String.valueOf(quizDtoList));
 
@@ -170,7 +173,7 @@ public class QuizService {
         int totalScore = 0;
 
         try {
-            for (int i=0; i<answerList.size(); i++) {
+            for (int i = 0; i < answerList.size(); i++) {
                 boolean correct = false;
                 int score = 0; // 각 문제의 점수를 따로 계산하기 위해 반복마다 초기화
                 Quiz quiz = quizRepo.findByQuizId(dto.getQuizIdList().get(i));
