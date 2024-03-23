@@ -10,6 +10,8 @@ import com.beotkkot.qtudy.dto.response.*;
 import com.beotkkot.qtudy.dto.response.posts.*;
 import com.beotkkot.qtudy.repository.comments.CommentsRepository;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
+import com.beotkkot.qtudy.repository.quiz.QuizRepository;
+import com.beotkkot.qtudy.repository.quiz.ReviewRepository;
 import com.beotkkot.qtudy.repository.scrap.ScrapRepository;
 import com.beotkkot.qtudy.repository.tags.TagsRepository;
 import com.beotkkot.qtudy.repository.user.UserRepository;
@@ -36,6 +38,9 @@ public class PostsService {
     private final ScrapRepository scrapRepo;
     private final SummaryService summaryService;
     private final CommentsRepository commentsRepo;
+    private final ReviewRepository reviewRepo;
+    private final QuizRepository quizRepo;
+
 
     @Transactional
     public ResponseEntity<? super PostsResponseDto> savePost(Long kakao_uid, PostsRequestDto dto) {
@@ -230,6 +235,8 @@ public class PostsService {
 
             scrapRepo.deleteByPostId(postId);
             commentsRepo.deleteByPostId(postId);
+            reviewRepo.deleteByPostId(postId);
+            quizRepo.deleteByPostId(postId);
 
             // 관련된 hash tag -1
             List<String> tagNameList = Arrays.asList(post.getTag().split("\\s*,\\s*"));
