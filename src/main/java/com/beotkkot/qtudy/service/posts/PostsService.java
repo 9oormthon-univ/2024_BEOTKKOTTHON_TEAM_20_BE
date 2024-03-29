@@ -206,12 +206,11 @@ public class PostsService {
                 }
             }
 
-            post.patchPost(dto);
 
             // 요약
             String summary = summaryService.summary(dto.getContent());
-            post.setContent(dto.getContent());
-            post.setSummary(summary);
+
+            post.patchPost(dto, summary);
 
             postsRepo.save(post);
 
