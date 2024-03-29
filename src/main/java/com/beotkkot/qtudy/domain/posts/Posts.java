@@ -10,7 +10,6 @@ import java.util.Date;
 
 
 @Builder
-@Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,7 +43,7 @@ public class Posts {
 
     private String updatedAt;
 
-    public void patchPost(PostsRequestDto dto) {
+    public void patchPost(PostsRequestDto dto, String summary) {
         Date now = Date.from(Instant.now());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String updateDatetime = simpleDateFormat.format(now);
@@ -55,6 +54,7 @@ public class Posts {
         this.updatedAt = updateDatetime;
         this.tag = tagString;
         this.categoryId = dto.getCategoryId();
+        this.summary = summary;
     }
 
     public void increaseScrapCount() {

@@ -50,7 +50,7 @@ public class AuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type","authorization_code");
         params.add("client_id", OAUTH_CLIENT_ID);
-        params.add("redirect_uti", "https://qtudy.site/auth/redirected/kakao");
+        params.add("redirect_uri", "http://localhost:3000/auth/redirected/kakao");
         params.add("code", code);
 
         // header, body를 가진 엔티티
@@ -132,7 +132,7 @@ public class AuthService {
             System.out.println("findUser.isFirst() = " + findUser.isFirst());
         } else {    // 이미 가입한 사용자라면
             if (findUser.isFirst()) {
-                findUser.setFirst(false);
+                findUser.updateFirst();
             }
         }
         return findUser;

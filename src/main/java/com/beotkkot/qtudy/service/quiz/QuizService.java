@@ -106,12 +106,12 @@ public class QuizService {
         Quiz quiz = new Quiz();
         String optionsString = String.join(",", saveQuizDto.getQuizDto().getOptions());
 
-        quiz.setPostId(saveQuizDto.getPostId());
-        quiz.setTags(saveQuizDto.getTags());
-        quiz.setQuestion(saveQuizDto.getQuizDto().getQuestion());
-        quiz.setAnswer(saveQuizDto.getQuizDto().getAnswer());
-        quiz.setOptions(optionsString);
-        quiz.setExplanation(saveQuizDto.getQuizDto().getExplanation());
+//        quiz.setPostId(saveQuizDto.getPostId());
+//        quiz.setTags(saveQuizDto.getTags());
+//        quiz.setQuestion(saveQuizDto.getQuizDto().getQuestion());
+//        quiz.setAnswer(saveQuizDto.getQuizDto().getAnswer());
+//        quiz.setOptions(optionsString);
+//        quiz.setExplanation(saveQuizDto.getQuizDto().getExplanation());
 
         quizRepo.save(quiz);
     }
