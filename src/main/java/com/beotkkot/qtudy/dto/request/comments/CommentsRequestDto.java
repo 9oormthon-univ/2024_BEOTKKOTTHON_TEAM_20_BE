@@ -12,7 +12,6 @@ import java.util.Date;
 @Getter
 public class CommentsRequestDto {
     private String content;
-    private Long userUid;
 
     public Comments toEntity(Long postId) {
         Date now = Date.from(Instant.now());
