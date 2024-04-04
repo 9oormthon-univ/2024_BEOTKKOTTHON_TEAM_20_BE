@@ -4,6 +4,7 @@ import com.beotkkot.qtudy.domain.user.Users;
 import com.beotkkot.qtudy.dto.object.KakaoUserInfo;
 import com.beotkkot.qtudy.dto.response.ResponseDto;
 import com.beotkkot.qtudy.dto.response.auth.AuthResponseDto;
+import com.beotkkot.qtudy.repository.user.UserRepository;
 import com.beotkkot.qtudy.service.user.UserService;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -31,6 +32,7 @@ public class AuthService {
     @Value("${OAUTH_CLIENT_ID}")
     private String OAUTH_CLIENT_ID;
     private final UserService userService;
+    private final UserRepository userRepository;
 
     // 1. 코드를 이용해 카카오로부터 토큰 얻기
     public String getAccessToken(String code) {
@@ -50,7 +52,7 @@ public class AuthService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type","authorization_code");
         params.add("client_id", OAUTH_CLIENT_ID);
-        params.add("redirect_uti", "https://qtudy.site/auth/redirected/kakao");
+        params.add("redirect_uri", "http://localhost:3000/auth/redirected/kakao");
         params.add("code", code);
 
         // header, body를 가진 엔티티
@@ -119,20 +121,17 @@ public class AuthService {
     // 3. 사용자 정보를 DB에서 조회하고, 가입되지 않은 사용자라면 DB에 저장 후 해당 사용자 반환
     public Users login(KakaoUserInfo kakaoUserInfo) {
         Long kakaoId = kakaoUserInfo.getId();   // 사용자의 카카오 아이디 불러오기
-        Users findUser = userService.findUserKaKaoId(kakaoId); // 카카오 아이디로 유저 조회
+        Users findUser = userRepository.findByKakaoId(kakaoId); // 카카오 아이디로 유저 조회
 
         // 가입되지 않은 사용자라면
         if (findUser == null) {
             // DB에 새로 저장
             userService.saveUser(kakaoUserInfo);
             // 사용자 재조회
-            findUser = userService.findUserKaKaoId(kakaoId);
-            // 최초 사용자로 설정
-            findUser.setFirst(true);
-            System.out.println("findUser.isFirst() = " + findUser.isFirst());
+            findUser = userRepository.findByKakaoId(kakaoId);
         } else {    // 이미 가입한 사용자라면
             if (findUser.isFirst()) {
-                findUser.setFirst(false);
+                findUser.updateFirst();
             }
         }
         return findUser;
