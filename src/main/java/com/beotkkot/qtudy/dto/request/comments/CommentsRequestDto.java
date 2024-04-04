@@ -12,9 +12,8 @@ import java.util.Date;
 @Getter
 public class CommentsRequestDto {
     private String content;
-    private Long userUid;
 
-    public Comments toEntity(Long postId) {
+    public Comments toEntity(Long postId, Long userUid) {
         Date now = Date.from(Instant.now());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String writeDatetime = simpleDateFormat.format(now);
