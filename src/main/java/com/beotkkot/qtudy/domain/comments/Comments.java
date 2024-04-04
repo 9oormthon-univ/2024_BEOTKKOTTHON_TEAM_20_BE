@@ -5,7 +5,6 @@ import lombok.*;
 
 @Builder
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -24,4 +23,8 @@ public class Comments {
     private String content;
 
     private String createdAt;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
