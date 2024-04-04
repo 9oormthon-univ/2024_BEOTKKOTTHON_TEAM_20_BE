@@ -46,9 +46,7 @@ public class CommentService {
                 return CommentsResponseDto.notExistedUser();
             } else {
                 // 댓글 엔티티 생성
-                Comments comment = dto.toEntity(postId);
-                comment.setContent(dto.getContent());
-                comment.setUserUid(userUid);
+                Comments comment = dto.toEntity(postId, userUid);
 
                 // 댓글 저장
                 commentRepo.save(comment);
@@ -56,7 +54,7 @@ public class CommentService {
                 // postRespo의 commentCount 업데이트
                 int commentCount = commentRepo.countByPostId(postId);
                 Posts post = postRepo.findByPostId(postId);
-                post.setCommentCount(commentCount);
+                post.updateCommentCount(commentCount);
             }
         } catch (Exception exception) {
             log.info("error " + exception.getMessage());
@@ -101,7 +99,7 @@ public class CommentService {
                 if (!comment.getUserUid().equals(userUid)) {
                     return CommentsResponseDto.noPermission();
                 }
-                comment.setContent(dto.getContent());
+                comment.updateContent(dto.getContent());
             }
         } catch (Exception exception) {
             log.info("error " + exception.getMessage());
@@ -130,7 +128,7 @@ public class CommentService {
                 // postRespo의 commentCount 업데이트
                 int commentCount = commentRepo.countByPostId(postId);
                 Posts post = postRepo.findByPostId(postId);
-                post.setCommentCount(commentCount);
+                post.updateCommentCount(commentCount);
             }
         } catch (Exception exception) {
             log.info("error " + exception.getMessage());
