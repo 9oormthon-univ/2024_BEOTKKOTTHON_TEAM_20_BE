@@ -103,15 +103,17 @@ public class QuizService {
 
     @Transactional
     public void saveQuiz(PostQuizRequestDto saveQuizDto) {
-        Quiz quiz = new Quiz();
+
         String optionsString = String.join(",", saveQuizDto.getQuizDto().getOptions());
 
-        quiz.setPostId(saveQuizDto.getPostId());
-        quiz.setTags(saveQuizDto.getTags());
-        quiz.setQuestion(saveQuizDto.getQuizDto().getQuestion());
-        quiz.setAnswer(saveQuizDto.getQuizDto().getAnswer());
-        quiz.setOptions(optionsString);
-        quiz.setExplanation(saveQuizDto.getQuizDto().getExplanation());
+        Quiz quiz = Quiz.builder()
+                .postId(saveQuizDto.getPostId())
+                .tags(saveQuizDto.getTags())
+                .question(saveQuizDto.getQuizDto().getQuestion())
+                .answer(saveQuizDto.getQuizDto().getAnswer())
+                .options(optionsString)
+                .explanation(saveQuizDto.getQuizDto().getExplanation())
+                .build();
 
         quizRepo.save(quiz);
     }
@@ -197,20 +199,22 @@ public class QuizService {
                 }
 
                 // 오답노트 entity에 저장
-                Review newReview = new Review();
-                newReview.setUserId(uuid);
-                newReview.setPostId(quiz.getPostId());
-                newReview.setQuizId(quiz.getQuizId());
-                newReview.setReviewId(reviewId);
-                newReview.setType(dto.getType());
-                newReview.setCreatedAt(writeDatetime);
-                newReview.setUserAnswer(userAnswerList.get(i));
-                newReview.setAnswer(answerList.get(i));
-                newReview.setCorrect(correct);
-                newReview.setExplanation(quiz.getExplanation());
-                newReview.setCategoryId(post.getCategoryId());
-                newReview.setScore(score);
-                newReview.setTags(quiz.getTags());
+                Review newReview = Review.builder()
+                        .userId(uuid)
+                        .postId(quiz.getPostId())
+                        .quizId(quiz.getQuizId())
+                        .reviewId(reviewId)
+                        .type(dto.getType())
+                        .createdAt(writeDatetime)
+                        .userAnswer(userAnswerList.get((i)))
+                        .answer(answerList.get(i))
+                        .correct(correct)
+                        .explanation(quiz.getExplanation())
+                        .categoryId(post.getCategoryId())
+                        .score(score)
+                        .tags(quiz.getTags())
+                        .build();
+
                 reviewRepo.save(newReview);
 
                 gradeList.add(QuizGradeListItem.of(quiz, correct, userAnswerList.get(i)));
