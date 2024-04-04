@@ -10,6 +10,8 @@ import com.beotkkot.qtudy.dto.response.*;
 import com.beotkkot.qtudy.dto.response.posts.*;
 import com.beotkkot.qtudy.repository.comments.CommentsRepository;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
+import com.beotkkot.qtudy.repository.quiz.QuizRepository;
+import com.beotkkot.qtudy.repository.quiz.ReviewRepository;
 import com.beotkkot.qtudy.repository.scrap.ScrapRepository;
 import com.beotkkot.qtudy.repository.tags.TagsRepository;
 import com.beotkkot.qtudy.repository.user.UserRepository;
@@ -36,6 +38,9 @@ public class PostsService {
     private final ScrapRepository scrapRepo;
     private final SummaryService summaryService;
     private final CommentsRepository commentsRepo;
+    private final ReviewRepository reviewRepo;
+    private final QuizRepository quizRepo;
+
 
     @Transactional
     public ResponseEntity<? super PostsResponseDto> savePost(Long kakao_uid, PostsRequestDto dto) {
@@ -45,9 +50,6 @@ public class PostsService {
         try {
 
             if (userRepo.findByKakaoId(kakao_uid) != null) {
-
-                // 포스트 엔티티 생성
-                Posts post = dto.toEntity(kakao_uid);
 
                 // 태그 처리
                 List<String> postTags = dto.getTag();
@@ -61,23 +63,21 @@ public class PostsService {
                         increasedTag.add(tagName);
                     } else {
                         // 새로운 태그인 경우 태그를 생성하고 count를 1로 초기화함
-                        Tags newTag = new Tags();
-                        newTag.setName(tagName);
-                        newTag.setCount(1); // 새로운 태그의 count를 1로 초기화
-                        newTag.setCategoryId(dto.getCategoryId());
+                        Tags newTag = Tags.builder()
+                                .name(tagName)
+                                .count(1)
+                                .categoryId(dto.getCategoryId())
+                                .build();
 
                         newTagList.add(newTag);
                     }
                 }
 
-                // 저장된 태그 목록을 포스트에 설정
-                String tagString = String.join(",", postTags);
-                post.setTag(tagString);
-
                 // postRepo에 해당 유저가 작성한 글에 대한 요약본 저장하는 부분 추가
                 String summary = summaryService.summary(dto.getContent());
-                post.setContent(dto.getContent());
-                post.setSummary(summary);
+
+                // 포스트 엔티티 생성
+                Posts post = dto.toEntity(kakao_uid, summary);
 
                 // 포스트 저장 후 postId 반환
                 Posts savedPost = postsRepo.save(post);
@@ -191,9 +191,11 @@ public class PostsService {
                         tag.increaseTagCount();
                     } else {
                         // 새로운 태그인 경우 태그를 생성하고 count를 1로 초기화함
-                        Tags newTag = new Tags();
-                        newTag.setName(tagName);
-                        newTag.setCount(1); // 새로운 태그의 count를 1로 초기화
+                        Tags newTag = Tags.builder()
+                                .name(tagName)
+                                .count(1)
+                                .categoryId(dto.getCategoryId())
+                                .build();
 
                         // 새로운 태그를 저장
                         tagRepo.save(newTag);
@@ -201,12 +203,11 @@ public class PostsService {
                 }
             }
 
-            post.patchPost(dto);
 
             // 요약
             String summary = summaryService.summary(dto.getContent());
-            post.setContent(dto.getContent());
-            post.setSummary(summary);
+
+            post.patchPost(dto, summary);
 
             postsRepo.save(post);
 
@@ -230,6 +231,8 @@ public class PostsService {
 
             scrapRepo.deleteByPostId(postId);
             commentsRepo.deleteByPostId(postId);
+            reviewRepo.deleteByPostId(postId);
+            quizRepo.deleteByPostId(postId);
 
             // 관련된 hash tag -1
             List<String> tagNameList = Arrays.asList(post.getTag().split("\\s*,\\s*"));

@@ -1,11 +1,16 @@
 package com.beotkkot.qtudy.domain.user;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Getter @Setter
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Users {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -18,4 +23,8 @@ public class Users {
     private String profileImageUrl;
 
     private boolean first;
+
+    public void updateFirst() {
+        this.first = false;
+    }
 }

@@ -26,10 +26,12 @@ public class UserService {
          */
 
         // User 엔티티 생성
-        Users user = new Users();
-        user.setName(name);
-        user.setKakaoId(kakaoUserInfo.getId());
-        user.setProfileImageUrl(kakaoUserInfo.getProfileImageUrl());
+        Users user = Users.builder()
+                .name(name)
+                .kakaoId(kakaoUserInfo.getId())
+                .profileImageUrl(kakaoUserInfo.getProfileImageUrl())
+                .first(true)
+                .build();
 
         // 유저 저장
         userRepository.save(user);
