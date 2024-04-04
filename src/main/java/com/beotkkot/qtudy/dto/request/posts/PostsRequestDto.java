@@ -18,7 +18,7 @@ public class PostsRequestDto {
     private Long categoryId;
     private String summary;
 
-    public Posts toEntity(Long uid) {
+    public Posts toEntity(Long uid, String summary) {
         Date now = Date.from(Instant.now());
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String writeDatetime = simpleDateFormat.format(now);
