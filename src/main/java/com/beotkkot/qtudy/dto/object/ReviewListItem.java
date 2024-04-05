@@ -25,7 +25,7 @@ public class ReviewListItem {
     private List<String> tags;
 
     public static ReviewListItem of(Users user, Review review, int totalScore) {
-        List<String> tag = Arrays.asList(review.getTags().split("\\s*,\\s*"));
+        List<String> tag = Arrays.asList(review.getQuiz().getTags().split("\\s*,\\s*"));
         String userName;
         String userProfile;
         if (review.getType().equals("tag")) {
