@@ -63,7 +63,7 @@ public class QuizService {
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("messages", messages);
-        requestBody.put("model", "gpt-4-1106-preview");
+        requestBody.put("model","gpt-3.5-turbo"); // "gpt-4-1106-preview"
         requestBody.put("temperature", 0.0f);
         requestBody.put("max_tokens", 4000);
 
@@ -114,6 +114,7 @@ public class QuizService {
                 .options(optionsString)
                 .explanation(saveQuizDto.getQuizDto().getExplanation())
                 .build();
+
 
         quizRepo.save(quiz);
     }
