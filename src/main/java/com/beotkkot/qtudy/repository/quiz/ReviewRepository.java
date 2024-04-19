@@ -15,7 +15,7 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     @Query("SELECT r FROM Review r " +
-            "WHERE r.userId = :userId " +
+            "WHERE r.user.userId = :userId " +
             "GROUP BY r.reviewId " +
             "ORDER BY MAX(r.score) DESC")
     Page<Review> findHighestScoreReviewForEachReviewId(@Param("userId") Long userId, PageRequest pageRequest);
@@ -23,7 +23,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     // reviewId별 totalScore 구하기
     @Query("SELECT SUM(r.score) " +
             "FROM Review r " +
-            "WHERE r.userId = :userId AND r.reviewId = :reviewId")
+            "WHERE r.user.userId = :userId AND r.reviewId = :reviewId")
     int findScoreByUserIdAndReviewId(@Param("userId") Long userId, @Param("reviewId") String reviewId);
 
     // reviewId별로 review 찾기
