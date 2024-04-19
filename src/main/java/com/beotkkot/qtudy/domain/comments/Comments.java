@@ -1,5 +1,7 @@
 package com.beotkkot.qtudy.domain.comments;
 
+import com.beotkkot.qtudy.domain.posts.Posts;
+import com.beotkkot.qtudy.domain.user.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,11 +15,13 @@ public class Comments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
 
-    @Column(nullable = false)
-    private Long postId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
+    private Posts post;
 
-    @Column(nullable = false)
-    private Long userUid;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private Users user;
 
     @Column(columnDefinition = "TEXT")
     private String content;

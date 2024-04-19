@@ -1,5 +1,6 @@
 package com.beotkkot.qtudy.domain.tags;
 
+import com.beotkkot.qtudy.domain.category.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,9 @@ public class Tags {
 
     private int count; // 태그 언급 횟수
 
-    private Long categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     public void increaseTagCount() {
         this.count++;
