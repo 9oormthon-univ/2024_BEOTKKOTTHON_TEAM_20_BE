@@ -18,14 +18,14 @@ public class CommentListItem {
     private String name;
     private String profileImageUrl;
 
-    public static CommentListItem of(Comments comment, Users user) {
+    public static CommentListItem of(Comments comment) {
 
         return CommentListItem.builder()
                 .commentId(comment.getCommentId())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
-                .name(user.getName())
-                .profileImageUrl(user.getProfileImageUrl())
+                .name(comment.getUser().getName())
+                .profileImageUrl(comment.getUser().getProfileImageUrl())
                 .build();
     }
 }

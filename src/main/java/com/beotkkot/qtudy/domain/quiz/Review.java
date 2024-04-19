@@ -1,5 +1,6 @@
 package com.beotkkot.qtudy.domain.quiz;
 
+import com.beotkkot.qtudy.domain.user.Users;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,31 +14,26 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private Users user;
 
     @Column(nullable = false)
     private Long postId;
 
-    @Column(nullable = false)
-    private Long quizId;
+    @ManyToOne
+    @JoinColumn(name = "quiz_id")
+    private Quiz quiz;
 
     @Column(nullable = false)
     private int userAnswer;
 
     @Column(nullable = false)
-    private String answer;
-
-    @Column(nullable = false)
     private boolean correct;
-
-    private String explanation;
 
     private Long categoryId;
 
     private String type;
-
-    private String tags;
 
     private int score;
 

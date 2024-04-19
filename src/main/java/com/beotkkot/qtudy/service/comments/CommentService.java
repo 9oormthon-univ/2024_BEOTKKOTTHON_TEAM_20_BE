@@ -46,14 +46,16 @@ public class CommentService {
                 return CommentsResponseDto.notExistedUser();
             } else {
                 // 댓글 엔티티 생성
-                Comments comment = dto.toEntity(postId, userUid);
+                Users user = userRepo.findByKakaoId(userUid);
+                Posts post = postRepo.findByPostId(postId);
+                Comments comment = dto.toEntity(post, user);
 
                 // 댓글 저장
                 commentRepo.save(comment);
 
                 // postRespo의 commentCount 업데이트
-                int commentCount = commentRepo.countByPostId(postId);
-                Posts post = postRepo.findByPostId(postId);
+                int commentCount = commentRepo.countByPost_PostId(postId);
+//                Posts post = postRepo.findByPostId(postId);
                 post.updateCommentCount(commentCount);
             }
         } catch (Exception exception) {
@@ -67,11 +69,10 @@ public class CommentService {
         List<CommentListItem> commentListItems = new ArrayList<>();
         Pageable pageable = PageRequest.of(page, 4, Sort.by("createdAt").descending());
         try {
-            List<Comments> comments = commentRepo.findAllByPostId(postId, pageable).getContent();
+            List<Comments> comments = commentRepo.findByPost_PostId(postId, pageable).getContent();
 
             for (Comments comment : comments) {
-                Users user = userRepo.findByKakaoId(comment.getUserUid());
-                commentListItems.add(CommentListItem.of(comment, user));
+                commentListItems.add(CommentListItem.of(comment));
             }
         } catch (Exception exception) {
             log.info("error ", exception.getMessage());
@@ -94,9 +95,7 @@ public class CommentService {
             } else {
                 // 댓글 수정
                 Comments comment = commentRepo.findById(commentId).get();
-                System.out.println("comment.getUserUid() = " + comment.getUserUid());
-                System.out.println("userUid = " + userUid);
-                if (!comment.getUserUid().equals(userUid)) {
+                if (!comment.getUser().getKakaoId().equals(userUid)) {
                     return CommentsResponseDto.noPermission();
                 }
                 comment.updateContent(dto.getContent());
@@ -120,13 +119,13 @@ public class CommentService {
             } else {
                 // 댓글 삭제
                 Comments comment = commentRepo.findById(commentId).get();
-                if (!comment.getUserUid().equals(userUid)) {
+                if (!comment.getUser().getKakaoId().equals(userUid)) {
                     return DeleteCommentsResponseDto.noPermission();
                 }
                 commentRepo.delete(comment);
 
                 // postRespo의 commentCount 업데이트
-                int commentCount = commentRepo.countByPostId(postId);
+                int commentCount = commentRepo.countByPost_PostId(postId);
                 Posts post = postRepo.findByPostId(postId);
                 post.updateCommentCount(commentCount);
             }
