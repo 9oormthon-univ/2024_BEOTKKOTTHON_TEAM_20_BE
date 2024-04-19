@@ -10,7 +10,6 @@ import com.beotkkot.qtudy.dto.response.ResponseDto;
 import com.beotkkot.qtudy.dto.response.quiz.GetReviewResponseDto;
 import com.beotkkot.qtudy.dto.response.quiz.ReviewResponseDto;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
-import com.beotkkot.qtudy.repository.quiz.QuizRepository;
 import com.beotkkot.qtudy.repository.quiz.ReviewRepository;
 import com.beotkkot.qtudy.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,6 @@ public class ReviewService {
     private final ReviewRepository reviewRepo;
     private final UserRepository userRepo;
     private final PostsRepository postRepo;
-    private final QuizRepository quizRepo;
 
     // 내가 푼 퀴즈 전체 조회
     @Transactional
@@ -70,8 +68,8 @@ public class ReviewService {
             List<Review> reviews = reviewRepo.findReviewByReviewId(reviewId);
             totalScore = reviewRepo.findScoreByUserIdAndReviewId(kakao_uid, reviewId);
 
-            for (Review review: reviews) {
-                quiz = quizRepo.findByQuizId(review.getQuizId());
+            for (Review review : reviews) {
+                quiz = review.getQuiz();
                 reviewListItems.add(ReviewDetailListItem.of(quiz, review));
             }
         } catch (Exception exception) {

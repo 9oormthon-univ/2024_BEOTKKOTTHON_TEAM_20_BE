@@ -19,25 +19,19 @@ public class Review {
     @Column(nullable = false)
     private Long postId;
 
-    @Column(nullable = false)
-    private Long quizId;
+    @ManyToOne
+    @JoinColumn(name = "quiz_id")
+    private Quiz quiz;
 
     @Column(nullable = false)
     private int userAnswer;
 
     @Column(nullable = false)
-    private String answer;
-
-    @Column(nullable = false)
     private boolean correct;
-
-    private String explanation;
 
     private Long categoryId;
 
     private String type;
-
-    private String tags;
 
     private int score;
 

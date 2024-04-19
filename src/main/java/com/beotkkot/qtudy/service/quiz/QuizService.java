@@ -63,7 +63,7 @@ public class QuizService {
 
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("messages", messages);
-        requestBody.put("model","gpt-3.5-turbo"); // "gpt-4-1106-preview"
+        requestBody.put("model", "gpt-3.5-turbo"); // "gpt-4-1106-preview"
         requestBody.put("temperature", 0.0f);
         requestBody.put("max_tokens", 4000);
 
@@ -114,7 +114,6 @@ public class QuizService {
                 .options(optionsString)
                 .explanation(saveQuizDto.getQuizDto().getExplanation())
                 .build();
-
 
         quizRepo.save(quiz);
     }
@@ -203,17 +202,14 @@ public class QuizService {
                 Review newReview = Review.builder()
                         .userId(uuid)
                         .postId(quiz.getPostId())
-                        .quizId(quiz.getQuizId())
+                        .quiz(quiz)
                         .reviewId(reviewId)
                         .type(dto.getType())
                         .createdAt(writeDatetime)
                         .userAnswer(userAnswerList.get((i)))
-                        .answer(answerList.get(i))
                         .correct(correct)
-                        .explanation(quiz.getExplanation())
                         .categoryId(post.getCategoryId())
                         .score(score)
-                        .tags(quiz.getTags())
                         .build();
 
                 reviewRepo.save(newReview);
