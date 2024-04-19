@@ -7,6 +7,7 @@ import java.util.*;
 import com.beotkkot.qtudy.domain.posts.Posts;
 import com.beotkkot.qtudy.domain.quiz.Quiz;
 import com.beotkkot.qtudy.domain.quiz.Review;
+import com.beotkkot.qtudy.domain.user.Users;
 import com.beotkkot.qtudy.dto.object.QuizDto;
 import com.beotkkot.qtudy.dto.object.QuizGradeListItem;
 import com.beotkkot.qtudy.dto.object.QuizListItem;
@@ -20,6 +21,7 @@ import com.beotkkot.qtudy.dto.response.quiz.QuizGradeResponseDto;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
 import com.beotkkot.qtudy.repository.quiz.QuizRepository;
 import com.beotkkot.qtudy.repository.quiz.ReviewRepository;
+import com.beotkkot.qtudy.repository.user.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +46,7 @@ public class QuizService {
     private final QuizRepository quizRepo;
     private final ReviewRepository reviewRepo;
     private final PostsRepository postRepo;
+    private final UserRepository userRepo;
 
     // 퀴즈 생성기
     public String generateQuiz(GenerateQuizRequestDto genQuizReqDto) throws JsonProcessingException {
@@ -198,9 +201,11 @@ public class QuizService {
                     }
                 }
 
+                Users user = userRepo.findByKakaoId(uuid);
+
                 // 오답노트 entity에 저장
                 Review newReview = Review.builder()
-                        .userId(uuid)
+                        .user(user)
                         .postId(quiz.getPostId())
                         .quiz(quiz)
                         .reviewId(reviewId)

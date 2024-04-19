@@ -43,7 +43,7 @@ public class TagService {
     public ResponseEntity<? super GetTagsResponseDto> getTagsByCategory(Long categoryId) {
         List<TagListItem> tagList = new ArrayList<>();
         try {
-            List<Tags> tags = tagRepo.findByCategoryId(categoryId);
+            List<Tags> tags = tagRepo.findByCategory_CategoryId(categoryId);
             for (Tags tag : tags) {
                 tagList.add(TagListItem.of(tag));
             }

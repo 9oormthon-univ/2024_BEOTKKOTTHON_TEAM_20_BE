@@ -1,5 +1,6 @@
 package com.beotkkot.qtudy.service.posts;
 
+import com.beotkkot.qtudy.domain.category.Category;
 import com.beotkkot.qtudy.domain.posts.Posts;
 import com.beotkkot.qtudy.domain.scrap.Scrap;
 import com.beotkkot.qtudy.domain.tags.Tags;
@@ -8,6 +9,7 @@ import com.beotkkot.qtudy.dto.object.PostListItem;
 import com.beotkkot.qtudy.dto.request.posts.PostsRequestDto;
 import com.beotkkot.qtudy.dto.response.*;
 import com.beotkkot.qtudy.dto.response.posts.*;
+import com.beotkkot.qtudy.repository.category.CategoryRepository;
 import com.beotkkot.qtudy.repository.comments.CommentsRepository;
 import com.beotkkot.qtudy.repository.posts.PostsRepository;
 import com.beotkkot.qtudy.repository.quiz.QuizRepository;
@@ -40,6 +42,7 @@ public class PostsService {
     private final CommentsRepository commentsRepo;
     private final ReviewRepository reviewRepo;
     private final QuizRepository quizRepo;
+    private final CategoryRepository categoryRepo;
 
 
     @Transactional
@@ -62,11 +65,14 @@ public class PostsService {
                         tag.increaseTagCount();
                         increasedTag.add(tagName);
                     } else {
+
+                        Category category = categoryRepo.findByCategoryId(dto.getCategoryId());
+
                         // 새로운 태그인 경우 태그를 생성하고 count를 1로 초기화함
                         Tags newTag = Tags.builder()
                                 .name(tagName)
                                 .count(1)
-                                .categoryId(dto.getCategoryId())
+                                .category(category)
                                 .build();
 
                         newTagList.add(newTag);
@@ -131,6 +137,7 @@ public class PostsService {
             }
         } catch (Exception exception) {
             exception.printStackTrace();
+            log.info("error: " + exception.getMessage());
             return ResponseDto.databaseError();
         }
 
@@ -190,11 +197,12 @@ public class PostsService {
                         Tags tag = existTag.get();
                         tag.increaseTagCount();
                     } else {
+                        Category category = categoryRepo.findByCategoryId(dto.getCategoryId());
                         // 새로운 태그인 경우 태그를 생성하고 count를 1로 초기화함
                         Tags newTag = Tags.builder()
                                 .name(tagName)
                                 .count(1)
-                                .categoryId(dto.getCategoryId())
+                                .category(category)
                                 .build();
 
                         // 새로운 태그를 저장
@@ -230,7 +238,7 @@ public class PostsService {
             if (!isWriter) return PostsResponseDto.noPermission();
 
             scrapRepo.deleteByPostId(postId);
-            commentsRepo.deleteByPostId(postId);
+            commentsRepo.deleteByPost_PostId(postId);
             reviewRepo.deleteByPostId(postId);
             quizRepo.deleteByPostId(postId);
 
